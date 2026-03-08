@@ -815,40 +815,44 @@ async function testWebhook() {
     dim_technology_score: 15, dim_technology_tier: 'Near Ready',
     dim_org_score: 14, dim_org_tier: 'Near Ready',
     dim_strategy_score: 16, dim_strategy_tier: 'Ready to Launch',
-    report_html: '<html><body><p>Test report — webhook connectivity check</p></body></html>'
+    report_html: '<html><body><p>Test report</p></body></html>'
   };
 
   let log = 'URL: ' + url + '\n';
-  log += 'Sending via fetch no-cors / text-plain (bypasses CORS preflight)…\n\n';
+  log += 'Method: GET with payload as query parameter (bypasses all CORS restrictions)…\n\n';
 
   try {
-    // text/plain with no-cors is the ONLY method that:
-    // 1. Doesn't trigger a CORS preflight (so the browser sends it)
-    // 2. Actually delivers the body to Apps Script (unlike no-cors + JSON)
-    // Apps Script reads the body via e.postData.contents
-    await fetch(url, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify(testPayload)
-    });
+    const encoded = encodeURIComponent(JSON.stringify(testPayload));
+    const getUrl = url + '?payload=' + encoded;
 
-    log += 'Request dispatched successfully (no-cors means no readable response).\n';
-    log += '\nCheck your Google Sheet and Drive folder now.\n';
-    log += 'If nothing appears within 10 seconds, open:\n';
-    log += 'script.google.com → your project → Executions\n';
-    log += 'to see the server-side log.\n\n';
-    log += 'Make sure your Apps Script reads: JSON.parse(e.postData.contents)';
+    const resp = await fetch(getUrl, { method: 'GET' });
+    const text = await resp.text();
 
-    statusEl.style.color = '#E8C23A';
-    statusEl.textContent = '⚡ Request sent — check your Sheet/Drive now';
+    log += 'HTTP Status: ' + resp.status + '\n';
+    log += 'Response: ' + (text.length > 300 ? text.slice(0,300) + '…' : text) + '\n';
+
+    try {
+      const json = JSON.parse(text);
+      if (json.status === 'ok') {
+        log += '\n✓ Apps Script confirmed: status = ok';
+        log += '\nCheck your Google Sheet — a test row should be there now.';
+        statusEl.style.color = '#3BAB7A';
+        statusEl.textContent = '✓ Webhook working — check your Sheet now';
+      } else {
+        log += '\n⚠ Apps Script returned: ' + JSON.stringify(json);
+        statusEl.style.color = '#E8943A';
+        statusEl.textContent = '⚠ Script error — see log';
+      }
+    } catch(pe) {
+      log += '\n(Response is not JSON)';
+      statusEl.style.color = '#E8943A';
+      statusEl.textContent = '⚠ Unexpected response — see log';
+    }
 
   } catch(err) {
-    log += 'Request failed: ' + err.message + '\n';
-    log += '\nThis is unusual — even no-cors requests should dispatch.\n';
-    log += 'Check that the URL is correct and the deployment is active.';
+    log += 'Request failed: ' + err.message;
     statusEl.style.color = '#E05555';
-    statusEl.textContent = '✗ Request failed — check URL';
+    statusEl.textContent = '✗ Request failed';
   }
 
   resultEl.textContent = log;
@@ -870,14 +874,10 @@ async function submitToSheets(payload) {
   try {
     const reportHtml = buildReportHTML();
     const fullPayload = {...payload, report_html: reportHtml};
-    // text/plain + no-cors bypasses CORS preflight and delivers the body.
-    // Apps Script reads it via e.postData.contents.
-    await fetch(url, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify(fullPayload)
-    });
+    // Use GET with payload as query param — only method that reliably reaches
+    // Apps Script doGet from a cross-origin page without CORS preflight issues.
+    const encoded = encodeURIComponent(JSON.stringify(fullPayload));
+    await fetch(url + '?payload=' + encoded, { method: 'GET' });
   } catch(e) { console.warn('Sheet submission error:', e); }
 }
 
