@@ -408,6 +408,14 @@ body::before {
           <p style="font-size:13px;color:var(--silver);margin-bottom:16px;line-height:1.6;">Paste your Google Apps Script Web App URL to automatically log all assessment submissions to a Google Sheet.</p>
           <label style="font-size:11px;color:var(--silver);letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:8px;">Apps Script Web App URL</label>
           <input type="text" id="sheets-url-input" class="settings-input" placeholder="https://script.google.com/macros/s/..." style="margin-bottom:12px;" value="" oninput="saveSheetsUrl(this.value)">
+          <div style="display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap;">
+            <button onclick="testWebhook()" id="btn-test-webhook" style="background:var(--blue);border:none;border-radius:8px;padding:10px 20px;color:#fff;font-family:Outfit,sans-serif;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px;">
+              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              Test Webhook
+            </button>
+            <span id="webhook-test-status" style="font-size:12px;color:var(--silver);"></span>
+          </div>
+          <div id="webhook-test-result" style="display:none;background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:16px;font-size:12px;font-family:monospace;line-height:1.7;max-height:200px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;color:#a8c4d8;"></div>
           <p style="font-size:11px;color:var(--silver);line-height:1.6;">Deploy an Apps Script as a Web App with <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;">doPost(e)</code> to receive assessment data as JSON. The payload includes all scores, dimension results, and the full HTML report.</p>
         </div>
         <div style="background:var(--mist);border:1px solid var(--border);border-radius:16px;padding:28px;">
@@ -777,6 +785,78 @@ function prevSection() {
 // ══════════════════════════════════════════════
 // GOOGLE SHEETS / DRIVE WEBHOOK
 // ══════════════════════════════════════════════
+async function testWebhook() {
+  const url = getSheetsUrl();
+  const statusEl = document.getElementById('webhook-test-status');
+  const resultEl = document.getElementById('webhook-test-result');
+  const btn = document.getElementById('btn-test-webhook');
+
+  if (!url || !url.startsWith('https://')) {
+    statusEl.style.color = '#E05555';
+    statusEl.textContent = '⚠ No valid URL saved — paste your Apps Script URL above first.';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.style.opacity = '0.6';
+  statusEl.style.color = 'var(--silver)';
+  statusEl.textContent = 'Sending test payload…';
+  resultEl.style.display = 'none';
+
+  const testPayload = {
+    _test: true,
+    timestamp: new Date().toISOString(),
+    name: 'Test User', role: 'Test Role', org: 'HGS Webhook Test',
+    email: 'test@hgstest.com', industry: 'Technology', size: '$100M–$500M',
+    advisor: 'HGS Test', date: new Date().toISOString().split('T')[0],
+    overall_score: 72, overall_tier: 'Near Ready',
+    dim_data_score: 14, dim_data_tier: 'Near Ready',
+    dim_process_score: 13, dim_process_tier: 'Progressing',
+    dim_technology_score: 15, dim_technology_tier: 'Near Ready',
+    dim_org_score: 14, dim_org_tier: 'Near Ready',
+    dim_strategy_score: 16, dim_strategy_tier: 'Ready to Launch',
+    report_html: '<html><body><p>Test report — webhook connectivity check</p></body></html>'
+  };
+
+  let log = 'URL: ' + url + '\n';
+  log += 'Sending via fetch no-cors / text-plain (bypasses CORS preflight)…\n\n';
+
+  try {
+    // text/plain with no-cors is the ONLY method that:
+    // 1. Doesn't trigger a CORS preflight (so the browser sends it)
+    // 2. Actually delivers the body to Apps Script (unlike no-cors + JSON)
+    // Apps Script reads the body via e.postData.contents
+    await fetch(url, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(testPayload)
+    });
+
+    log += 'Request dispatched successfully (no-cors means no readable response).\n';
+    log += '\nCheck your Google Sheet and Drive folder now.\n';
+    log += 'If nothing appears within 10 seconds, open:\n';
+    log += 'script.google.com → your project → Executions\n';
+    log += 'to see the server-side log.\n\n';
+    log += 'Make sure your Apps Script reads: JSON.parse(e.postData.contents)';
+
+    statusEl.style.color = '#E8C23A';
+    statusEl.textContent = '⚡ Request sent — check your Sheet/Drive now';
+
+  } catch(err) {
+    log += 'Request failed: ' + err.message + '\n';
+    log += '\nThis is unusual — even no-cors requests should dispatch.\n';
+    log += 'Check that the URL is correct and the deployment is active.';
+    statusEl.style.color = '#E05555';
+    statusEl.textContent = '✗ Request failed — check URL';
+  }
+
+  resultEl.textContent = log;
+  resultEl.style.display = 'block';
+  btn.disabled = false;
+  btn.style.opacity = '1';
+}
+
 function getSheetsUrl() {
   try { return localStorage.getItem('bdc_sheets_url') || ''; } catch(e) { return ''; }
 }
@@ -790,31 +870,14 @@ async function submitToSheets(payload) {
   try {
     const reportHtml = buildReportHTML();
     const fullPayload = {...payload, report_html: reportHtml};
-    // Apps Script requires the payload as a form field — JSON with no-cors silently
-    // drops the body so Apps Script never receives data. A hidden form POST is the
-    // reliable cross-origin delivery method. Apps Script reads e.parameter.payload.
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = url;
-    form.target = 'hgs_submit_frame';
-    form.style.display = 'none';
-    const input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = 'payload';
-    input.value = JSON.stringify(fullPayload);
-    form.appendChild(input);
-    // hidden iframe as target so we don't navigate away or open a tab
-    let frame = document.getElementById('hgs_submit_frame');
-    if (!frame) {
-      frame = document.createElement('iframe');
-      frame.name = 'hgs_submit_frame';
-      frame.id = 'hgs_submit_frame';
-      frame.style.display = 'none';
-      document.body.appendChild(frame);
-    }
-    document.body.appendChild(form);
-    form.submit();
-    setTimeout(() => { if (form.parentNode) form.parentNode.removeChild(form); }, 5000);
+    // text/plain + no-cors bypasses CORS preflight and delivers the body.
+    // Apps Script reads it via e.postData.contents.
+    await fetch(url, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(fullPayload)
+    });
   } catch(e) { console.warn('Sheet submission error:', e); }
 }
 
