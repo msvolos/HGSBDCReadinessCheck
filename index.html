@@ -789,8 +789,33 @@ async function submitToSheets(payload) {
   if (!url || url.includes('YOUR_')) return;
   try {
     const reportHtml = buildReportHTML();
-    await fetch(url, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body: JSON.stringify({...payload, report_html: reportHtml}) });
-  } catch(e) { console.warn('Sheet submission failed silently:', e); }
+    const fullPayload = {...payload, report_html: reportHtml};
+    // Apps Script requires the payload as a form field — JSON with no-cors silently
+    // drops the body so Apps Script never receives data. A hidden form POST is the
+    // reliable cross-origin delivery method. Apps Script reads e.parameter.payload.
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = url;
+    form.target = 'hgs_submit_frame';
+    form.style.display = 'none';
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'payload';
+    input.value = JSON.stringify(fullPayload);
+    form.appendChild(input);
+    // hidden iframe as target so we don't navigate away or open a tab
+    let frame = document.getElementById('hgs_submit_frame');
+    if (!frame) {
+      frame = document.createElement('iframe');
+      frame.name = 'hgs_submit_frame';
+      frame.id = 'hgs_submit_frame';
+      frame.style.display = 'none';
+      document.body.appendChild(frame);
+    }
+    document.body.appendChild(form);
+    form.submit();
+    setTimeout(() => { if (form.parentNode) form.parentNode.removeChild(form); }, 5000);
+  } catch(e) { console.warn('Sheet submission error:', e); }
 }
 
 // ══════════════════════════════════════════════
