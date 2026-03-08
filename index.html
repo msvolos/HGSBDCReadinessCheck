@@ -65,13 +65,10 @@ body::before {
 .brand { display: flex; align-items: center; gap: 14px; margin-bottom: 52px; }
 .brand-mark {
   width: 44px; height: 44px;
-  background: linear-gradient(135deg, var(--blue), var(--blue-light));
-  border-radius: 10px;
+  background: transparent;
+  border-radius: 0;
   display: flex; align-items: center; justify-content: center;
-  font-family: 'Cormorant Garamond', serif;
-  font-weight: 700; font-size: 20px; color: #fff;
   flex-shrink: 0;
-  box-shadow: 0 4px 16px rgba(0,87,184,0.4);
 }
 .brand-name { font-size: 12px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--silver); }
 .brand-divider { flex: 1; height: 1px; background: var(--border); }
@@ -328,13 +325,46 @@ body::before {
 
 @media(max-width:520px) { .field-grid { grid-template-columns: 1fr; } }
 @media(max-width:560px) { .action-score-row { grid-template-columns: 1fr; } .settings-option-row { grid-template-columns: 1fr 60px; } }
+
+/* EMAIL TOOLTIP */
+.email-tooltip-trigger {
+  position: relative; display: inline-flex; align-items: center; cursor: default;
+}
+.email-tooltip-box {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%; transform: translateX(-50%);
+  background: #0E1E2E;
+  border: 1px solid rgba(0,87,184,0.4);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 12px;
+  color: #C8D8E8;
+  white-space: nowrap;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+  z-index: 50;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  pointer-events: none;
+}
+.email-tooltip-box::after {
+  content: '';
+  position: absolute;
+  top: 100%; left: 50%; transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: rgba(0,87,184,0.4);
+}
+.email-tooltip-trigger:hover .email-tooltip-box,
+.email-tooltip-trigger:focus .email-tooltip-box { display: block; }
 </style>
 </head>
 <body>
 <div class="noise"></div>
 <div class="shell">
   <div class="brand">
-    <div class="brand-mark">H</div>
+    <div class="brand-mark"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 127.75 128.14" width="44" height="44"><defs><style>.hgs-logo{fill:#00b0f0;}</style></defs><path class="hgs-logo" d="M61.16,20.94,2,66.43a4.17,4.17,0,0,0-.8,5.84l.06.09a4.19,4.19,0,0,0,5.86.8l.07-.06,59.3-45.49a4.17,4.17,0,0,0,.81-5.84l-.07-.09h0a4.44,4.44,0,0,0-6-.74Z"/><path class="hgs-logo" d="M72,38.17a4.16,4.16,0,0,0-5.84-.81l-.09.07L2,86.63a4.17,4.17,0,0,0-.8,5.84l.06.09a4.18,4.18,0,0,0,5.85.81l.08-.07L71.26,44.1A4.34,4.34,0,0,0,72,38.17Z"/><path class="hgs-logo" d="M.84,52.26a4.18,4.18,0,0,0,5.85.81L6.77,53h0L63.47,9.54,95.81,34.28l-24,18.44a4.21,4.21,0,0,0,4.63,7,1.71,1.71,0,0,0,.47-.37l28.35-21.77h0l.28-.28h0l.46-.46a4.34,4.34,0,0,0-.74-5.93L66.07.83A3.9,3.9,0,0,0,64,0H63a4.36,4.36,0,0,0-2,.83L1.67,46.33A4.27,4.27,0,0,0,.84,52.26Z"/><path class="hgs-logo" d="M120.73,55,61.44,100.53a4.16,4.16,0,0,0-.83,5.82l.08.11h0a4.18,4.18,0,0,0,5.85.81l.08-.07,59.3-45.49a4.17,4.17,0,0,0,.81-5.84l-.07-.09a4.35,4.35,0,0,0-5.93-.74Z"/><path class="hgs-logo" d="M55.78,90a4.18,4.18,0,0,0,5.85.81l.08-.07,64.21-49.2A4.23,4.23,0,0,0,121,34.63l-.31.24L56.62,84a4.27,4.27,0,0,0-.87,6Z"/><path class="hgs-logo" d="M126.94,76h0a4.16,4.16,0,0,0-5.84-.81l-.09.07-56.7,43.46L32,93.86,56,75.42a4.23,4.23,0,0,0-4.88-6.91l-.31.24L22.43,90.52h0l-.28.28h0l-.46.46a4.36,4.36,0,0,0,.74,5.93L61.71,127.3a4,4,0,0,0,2,.84h1.11a4.4,4.4,0,0,0,2-.84l59.3-45.49A4.21,4.21,0,0,0,126.94,76Z"/></svg></div>
     <div class="brand-name">HGS Advisory</div>
     <div class="brand-divider"></div>
     <div class="brand-tag">SAP BDC Readiness Assessment</div>
@@ -415,7 +445,7 @@ body::before {
   <div id="screen-intro" class="screen active">
     <div class="eyebrow">Readiness Diagnostic</div>
     <h1 class="hero-title">SAP Business Data Cloud<br><em>Readiness Assessment</em></h1>
-    <p class="hero-sub">A comprehensive diagnostic across 5 critical dimensions. Understand your organisation's readiness to adopt SAP BDC and receive a prioritised transformation roadmap.</p>
+    <p class="hero-sub">A comprehensive diagnostic across 5 dimensions. Understand how ready your organisation is to adopt SAP BDC — regardless of industry or function — and receive a prioritised transformation roadmap.</p>
 
     <div class="assessment-meta">
       <div class="meta-item"><div class="meta-num">5</div><div class="meta-desc">Readiness Dimensions</div></div>
@@ -428,8 +458,19 @@ body::before {
       <div class="field-section-title">About Your Organisation</div>
       <div class="field-grid">
         <div class="field"><label>Full Name *</label><input type="text" id="f-name" placeholder="Jane Smith" /></div>
-        <div class="field"><label>Title / Role *</label><input type="text" id="f-role" placeholder="CFO / VP Finance" /></div>
+        <div class="field"><label>Title / Role *</label><input type="text" id="f-role" placeholder="CIO / COO / Programme Lead" /></div>
         <div class="field field-full"><label>Organisation *</label><input type="text" id="f-org" placeholder="Acme Corporation" /></div>
+        <div class="field field-full" style="position:relative;">
+          <label style="display:flex;align-items:center;gap:7px;">
+            Business Email *
+            <span class="email-tooltip-trigger" tabindex="0">
+              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:var(--silver);flex-shrink:0;"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 16v-4m0-4h.01"/></svg>
+              <span class="email-tooltip-box">You&#39;ll receive a copy of your full BDC Readiness Report to this address once you complete the assessment.</span>
+            </span>
+          </label>
+          <input type="email" id="f-email" placeholder="you@yourcompany.com" autocomplete="email" oninput="checkStart()" onblur="validateEmailField()" />
+          <div id="email-error" style="font-size:11px;color:var(--danger);margin-top:6px;min-height:16px;"></div>
+        </div>
         <div class="field">
           <label>Industry</label>
           <select id="f-industry">
@@ -498,80 +539,80 @@ const SECTIONS = [
     id: 'data',
     name: 'Data & Integration Landscape',
     icon: '🗄️',
-    desc: 'Assesses master data quality, system landscape complexity, governance, and intercompany reconciliation maturity.',
+    desc: 'Evaluates the quality, governance, and integration maturity of your organisation\'s data estate across all business domains.',
     questions: [
-      { text: 'How would you describe the current state of your master data (customers, vendors, materials, GL accounts)?',
-        options: ['Highly fragmented across multiple systems with no harmonisation roadmap','Partially harmonised — significant gaps and inconsistencies remain','Mostly consistent across core systems with minor discrepancies','Clean, centralised, and governed under a formal MDM programme'] },
-      { text: 'How many ERP or financial systems are you currently running enterprise-wide?',
-        options: ['5 or more separate ERP/financial systems','3–4 systems with limited integration','2 systems with some data exchange','Single ERP instance with consistent financial data'] },
-      { text: 'What is the maturity of your data governance practices today?',
-        options: ['No formal data governance — no defined ownership','Ad-hoc governance, no formal policies or stewards','Defined policies and ownership, inconsistently enforced','Formal governance with data stewards, policies, and quality KPIs'] },
-      { text: 'How are intercompany transactions currently handled across legal entities?',
-        options: ['Manual spreadsheet-based reconciliation with frequent errors','Partially automated with significant manual intervention','Mostly automated with some manual exception handling','Fully automated with real-time intercompany reconciliation'] },
+      { text: 'How would you describe the current state of your enterprise master data (products, customers, suppliers, assets, organisational hierarchies)?',
+        options: ['Highly fragmented across many systems with no harmonisation plan in place','Partially harmonised — significant inconsistencies and duplication remain','Mostly consistent across core systems with known, manageable gaps','Clean, centralised, and governed under a formal enterprise MDM programme'] },
+      { text: 'How many separate business systems (ERP, CRM, SCM, HCM, etc.) are currently running across your organisation?',
+        options: ['10 or more systems with minimal cross-system integration','5–9 systems with limited or point-to-point integration','3–4 systems with some automated data exchange','1–2 core platforms with well-integrated supporting systems'] },
+      { text: 'How mature are your organisation\'s data governance practices?',
+        options: ['No formal data governance — data ownership is undefined','Ad-hoc governance with no formal policies or assigned stewards','Policies and ownership roles defined, but inconsistently applied','Formal governance with data stewards, quality KPIs, and enforcement'] },
+      { text: 'How is data currently shared and synchronised across departments and business units?',
+        options: ['Mostly manual — data is extracted, re-keyed, or emailed between teams','Some automated feeds but significant manual intervention is still needed','Mostly automated with documented exceptions handled manually','Real-time or near-real-time integration across all key business domains'] },
     ]
   },
   {
     id: 'process',
-    name: 'Finance Process Standardisation',
+    name: 'Business Process Standardisation',
     icon: '⚙️',
-    desc: 'Evaluates the degree to which core finance processes are standardised, automated, and optimised across the organisation.',
+    desc: 'Assesses how consistently and efficiently core business processes are defined, executed, and optimised across the organisation.',
     questions: [
-      { text: 'How standardised are core finance processes (P2P, O2C, R2R) across business units?',
-        options: ['Each BU runs entirely different processes — no common standards','Some common processes exist but majority are decentralised','Mostly standardised with permitted BU-level exceptions','Fully standardised global finance processes with central governance'] },
-      { text: 'How long does your organisation take to complete the monthly period-end close?',
-        options: ['More than 15 business days with significant manual effort','10–15 business days, largely manual','6–10 business days with partial automation','5 or fewer business days with high automation (virtual close)'] },
-      { text: 'What is the current state of your group Chart of Accounts?',
-        options: ['Multiple COAs across entities with no harmonisation roadmap','Multiple COAs in active harmonisation — significant work remaining','Single group COA with necessary local extensions','Fully unified group COA deployed globally'] },
-      { text: 'How are budgeting, planning, and forecasting processes managed today?',
-        options: ['Spreadsheets only — no system integration','Standalone planning tool with limited ERP connection','Integrated planning with partial real-time ERP synchronisation','Fully integrated driver-based planning with real-time actuals'] },
+      { text: 'How standardised are your core operational and business processes across departments and business units?',
+        options: ['Each department runs its own processes with no common standards or templates','Some shared processes exist but the majority are locally defined and managed','Mostly standardised with documented exceptions permitted at a local level','Fully standardised enterprise-wide processes with central governance and enforcement'] },
+      { text: 'How would you describe the level of automation across your key business processes today?',
+        options: ['Predominantly manual — most processes rely on people, spreadsheets, and email','Some automation in isolated pockets with no coordinated approach','Significant automation in core processes, but manual steps remain at key handoffs','End-to-end automation across most processes with exception-based human intervention'] },
+      { text: 'How effectively does your organisation capture, share, and act on operational data generated by business processes?',
+        options: ['Data is siloed within systems and rarely used to inform decisions','Reports are produced periodically but insight is limited and slow to act on','Good reporting in place, but it is largely backward-looking and descriptive','Real-time operational data drives continuous decision-making and process improvement'] },
+      { text: 'How would you characterise the maturity of your organisation\'s approach to process documentation and continuous improvement?',
+        options: ['Processes are undocumented and rely heavily on individual knowledge','Some documentation exists but it is inconsistent and rarely kept up to date','Processes are formally documented and reviewed on a periodic cycle','A structured continuous improvement programme is embedded across the organisation'] },
     ]
   },
   {
     id: 'technology',
     name: 'Technology & SAP Landscape',
     icon: '💻',
-    desc: 'Reviews your current SAP footprint, technical expertise, cloud adoption posture, and IT/Finance partnership.',
+    desc: 'Reviews your current SAP footprint, broader technology estate, cloud readiness, and IT delivery capability.',
     questions: [
       { text: 'What is your current SAP landscape status?',
-        options: ['No SAP systems currently deployed','SAP legacy (R/3 or ECC) with no active S/4HANA migration','S/4HANA on-premise or private cloud deployed','S/4HANA public cloud or BTP-enabled — ready for BDC connectivity'] },
-      { text: 'How would you rate your organisation\'s SAP technical expertise and capability?',
-        options: ['Limited — few SAP-skilled resources, heavily reliant on SI partners','Basic — some functional knowledge, limited technical depth','Proficient — experienced core team capable of managing the platform','Advanced — strong SAP Centre of Excellence with architecture capability'] },
-      { text: 'What is your organisation\'s current cloud adoption posture?',
-        options: ['On-premise only — no cloud strategy defined','Cloud strategy defined but minimal actual adoption','Hybrid — selectively migrating to cloud on a case-by-case basis','Cloud-first strategy with significant SaaS/PaaS adoption across functions'] },
-      { text: 'How is the IT and Finance partnership structured in your organisation?',
-        options: ['Siloed — IT and Finance rarely collaborate on strategic direction','Project-based collaboration only — no standing governance','Defined joint governance with regular Finance-IT alignment forums','Fully aligned — shared ownership of digital roadmap with Finance-led priorities'] },
+        options: ['No SAP systems currently deployed','SAP legacy systems (R/3 or ECC) with no active S/4HANA migration planned','S/4HANA on-premise or private cloud deployed and stable','S/4HANA public cloud, or BTP-enabled — actively exploring cloud-native SAP solutions'] },
+      { text: 'How would you rate your organisation\'s internal SAP and enterprise technology capability?',
+        options: ['Limited — few SAP-skilled resources, heavily dependent on external partners','Basic — some functional knowledge but limited technical or architectural depth','Proficient — experienced internal team capable of owning platform delivery','Advanced — strong Centre of Excellence with architecture, integration, and innovation capability'] },
+      { text: 'What is your organisation\'s current posture on cloud adoption?',
+        options: ['On-premise only — no cloud strategy has been defined','Cloud strategy exists on paper but adoption is minimal in practice','Hybrid approach — selectively migrating workloads to cloud based on business case','Cloud-first with significant SaaS, PaaS, and IaaS adoption across the enterprise'] },
+      { text: 'How well does your IT function partner with the business to deliver technology-enabled change?',
+        options: ['IT is largely reactive — focused on infrastructure and support, not enablement','IT engages on projects when asked but is not a proactive strategic partner','IT and business collaborate regularly with defined governance and shared priorities','IT is deeply embedded as a strategic partner — co-owning the digital roadmap with the business'] },
     ]
   },
   {
     id: 'org',
     name: 'Organisational Readiness',
     icon: '🏢',
-    desc: 'Examines executive sponsorship, change management capability, team capacity, and cross-functional alignment.',
+    desc: 'Examines leadership sponsorship, change management capability, organisational capacity, and cross-functional alignment for large-scale transformation.',
     questions: [
-      { text: 'What level of executive sponsorship exists for a finance transformation of this scale?',
-        options: ['No executive sponsor identified — transformation not yet on leadership agenda','CFO aware of the initiative but not actively championing it','CFO actively sponsoring with visible engagement across the organisation','CEO and CFO co-sponsoring — transformation is a stated enterprise priority'] },
-      { text: 'How would you characterise your organisation\'s change management capability?',
-        options: ['No formal change management function or methodology','Ad-hoc change management practices applied on major projects','Structured OCM approach for large programmes with dedicated resource','Mature OCM practice — dedicated team, proven methodology, and leadership commitment'] },
-      { text: 'What is the current capacity of your Finance team to support transformation work alongside BAU?',
-        options: ['Fully consumed by BAU — no capacity available for transformation','Very limited — less than 10% of team could be allocated','Moderate — 10–25% of team could be freed up with effort','Good — a dedicated transformation team could be assembled'] },
-      { text: 'How aligned are Finance, IT, and business leadership on transformation goals and priorities?',
-        options: ['Significant disagreement or competing priorities across functions','Partial alignment — ongoing debates about scope and ownership','General agreement on direction with some unresolved exceptions','Strong consensus and a jointly owned transformation roadmap'] },
+      { text: 'What level of executive sponsorship currently exists for a transformation programme of this scale?',
+        options: ['No executive sponsor identified — the initiative is not yet on the leadership agenda','A senior leader is broadly aware but is not actively championing the programme','A C-suite sponsor is actively engaged and visible across the organisation','The CEO and leadership team are co-sponsoring — this is a stated enterprise priority'] },
+      { text: 'How would you characterise your organisation\'s capability to manage large-scale change?',
+        options: ['No formal change management function or proven methodology in place','Change management is applied informally and inconsistently across programmes','A structured OCM approach is used for major programmes with dedicated resource','A mature OCM practice with proven methodology, dedicated team, and leadership commitment'] },
+      { text: 'How much organisational capacity is realistically available to support a major transformation alongside business-as-usual?',
+        options: ['Teams are fully consumed by BAU — no meaningful capacity is available','Very limited — only ad-hoc contributions from a small number of individuals','Moderate — a part-time cross-functional working group could be assembled','Sufficient — a dedicated transformation team with clear mandate could be mobilised'] },
+      { text: 'How well aligned are business, technology, and operational leadership on the goals and scope of this transformation?',
+        options: ['Significant disagreement or misaligned priorities across functions and leadership','Partial alignment — there are ongoing debates about ownership, scope, and approach','Broad agreement on direction with a small number of unresolved questions','Strong consensus — shared roadmap, clear ownership, and visible leadership commitment'] },
     ]
   },
   {
     id: 'strategy',
     name: 'Strategic Drivers & Value Case',
     icon: '🎯',
-    desc: 'Assesses clarity of the business case, strategic alignment, timeline urgency, and primary transformation drivers.',
+    desc: 'Assesses the clarity of strategic intent, strength of the business case, timeline urgency, and alignment of SAP BDC to enterprise objectives.',
     questions: [
-      { text: 'How clearly defined and validated is the business case for SAP BDC adoption?',
-        options: ['No business case developed — exploration is at very early stage','High-level benefits identified verbally but not quantified','Quantified business case developed with some assumptions still open','Fully developed, board-approved business case with committed investment'] },
-      { text: 'What are the primary strategic drivers motivating your SAP BDC exploration?',
-        options: ['Compliance, audit risk, or regulatory pressure','Cost reduction, efficiency, and finance function rationalisation','M&A integration, growth, or multi-entity consolidation requirements','Digital finance transformation and competitive positioning'] },
-      { text: 'What is your target timeline for going live with SAP BDC?',
-        options: ['No timeline defined — still in exploratory phase','3 or more years out','18 months to 3 years','Less than 18 months — there is urgency to move quickly'] },
-      { text: 'How does SAP BDC fit within your broader enterprise digital and data strategy?',
-        options: ['Not yet connected to digital strategy — considered in isolation','Loosely aligned — some overlap with existing initiatives','Identified as a key strategic initiative in the digital roadmap','Central pillar of enterprise transformation — endorsed at board level'] },
+      { text: 'How clearly defined and validated is the business case for adopting SAP BDC?',
+        options: ['No business case developed — the organisation is at a very early exploratory stage','Strategic intent is clear but benefits have not been formally quantified','A quantified business case exists with some assumptions still to be validated','A fully developed, leadership-approved business case with committed funding is in place'] },
+      { text: 'What are the primary drivers motivating your organisation\'s interest in SAP BDC?',
+        options: ['Regulatory, compliance, or risk-driven — change is largely externally imposed','Operational efficiency — reducing cost, complexity, and manual effort across the business','Growth or transformation — enabling scale, M&A integration, or new business models','Strategic differentiation — using data and AI to compete, innovate, and lead the market'] },
+      { text: 'What is your organisation\'s target timeline for deploying SAP BDC?',
+        options: ['No timeline defined — still in discovery and evaluation phase','3 or more years — this is a long-horizon strategic initiative','18 months to 3 years — planning is underway with a medium-term target','Less than 18 months — there is clear urgency and momentum to move quickly'] },
+      { text: 'How well does SAP BDC connect to your organisation\'s broader enterprise data and digital strategy?',
+        options: ['It is being evaluated in isolation — no connection to the digital strategy yet','There is some overlap with existing initiatives but alignment is loose','It has been identified as a key initiative within the enterprise digital roadmap','It is a central pillar of the enterprise transformation strategy with board-level endorsement'] },
     ]
   }
 ];
@@ -602,9 +643,40 @@ let currentSection = 0;
 ['f-name','f-role','f-org'].forEach(id => {
   document.getElementById(id).addEventListener('input', checkStart);
 });
+
+const BLOCKED_EMAIL_DOMAINS = [
+  'gmail.com','googlemail.com','yahoo.com','yahoo.co.uk','yahoo.com.au','yahoo.ca','yahoo.fr','yahoo.de',
+  'hotmail.com','hotmail.co.uk','hotmail.fr','outlook.com','outlook.co.uk','live.com','live.co.uk',
+  'msn.com','icloud.com','me.com','mac.com','aol.com','aim.com','protonmail.com','proton.me',
+  'tutanota.com','zohomail.com','yandex.com','yandex.ru','mail.com','gmx.com','gmx.net',
+  'inbox.com','fastmail.com','hushmail.com','lycos.com','rediffmail.com',
+];
+
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+}
+
+function isPersonalEmail(email) {
+  const domain = email.split('@')[1]?.toLowerCase() || '';
+  return BLOCKED_EMAIL_DOMAINS.includes(domain);
+}
+
+function validateEmailField() {
+  const val = (document.getElementById('f-email')?.value || '').trim();
+  const errEl = document.getElementById('email-error');
+  if (!errEl) return true;
+  if (!val) { errEl.textContent = ''; return false; }
+  if (!isValidEmail(val)) { errEl.textContent = 'Please enter a valid email address.'; return false; }
+  if (isPersonalEmail(val)) { errEl.textContent = 'Please use your business email address — personal email providers are not accepted.'; return false; }
+  errEl.textContent = '';
+  return true;
+}
+
 function checkStart() {
-  const ok = ['f-name','f-role','f-org'].every(i => document.getElementById(i).value.trim());
-  document.getElementById('btn-start').disabled = !ok;
+  const basics = ['f-name','f-role','f-org'].every(i => document.getElementById(i).value.trim());
+  const email = (document.getElementById('f-email')?.value || '').trim();
+  const emailOk = basics && email && isValidEmail(email) && !isPersonalEmail(email);
+  document.getElementById('btn-start').disabled = !(basics && emailOk);
 }
 document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
 
@@ -751,25 +823,25 @@ function dimensionActions(dimId, tier) {
     },
     process: {
       foundation: [
-        { name:'Document and baseline all core finance processes', horizon:'short', effortScore:2, impactScore:7, effort:'low', impact:'high', roi:80, desc:'Create process maps for R2R, P2P, and O2C to establish a transformation baseline.', category:'process' },
-        { name:'Define finance process standardisation roadmap', horizon:'short', effortScore:4, impactScore:8, effort:'med', impact:'high', roi:82, desc:'Identify which processes must be standardised before BDC and sequence the work.', category:'process' },
-        { name:'Implement accelerated close programme', horizon:'med', effortScore:6, impactScore:8, effort:'med', impact:'high', roi:84, desc:'Reengineer the period-end close to reduce cycle time — target sub-5 day close for BDC readiness.', category:'process' },
+        { name:'Document and baseline all core business processes', horizon:'short', effortScore:2, impactScore:7, effort:'low', impact:'high', roi:80, desc:'Create process maps for key operational workflows to establish a baseline for transformation planning.', category:'process' },
+        { name:'Define enterprise process standardisation roadmap', horizon:'short', effortScore:4, impactScore:8, effort:'med', impact:'high', roi:82, desc:'Identify which processes must be standardised before BDC and sequence the remediation work.', category:'process' },
+        { name:'Launch business process automation programme', horizon:'med', effortScore:6, impactScore:8, effort:'med', impact:'high', roi:84, desc:'Begin automating high-volume manual processes to reduce errors and free capacity for transformation.', category:'process' },
       ],
       early: [
-        { name:'Standardise R2R processes across all entities', horizon:'med', effortScore:7, impactScore:9, effort:'high', impact:'high', roi:87, desc:'Align Record-to-Report processes across business units as a prerequisite for BDC Group Reporting.', category:'process' },
-        { name:'Harmonise planning and budgeting process', horizon:'short', effortScore:5, impactScore:8, effort:'med', impact:'high', roi:83, desc:'Standardise the annual budget and forecast process to align with BDC planning capabilities.', category:'process' },
-        { name:'Deploy workflow and approval automation', horizon:'short', effortScore:4, impactScore:6, effort:'med', impact:'med', roi:72, desc:'Replace email-based finance approvals with automated workflow to prepare for BDC process integration.', category:'process' },
+        { name:'Standardise core operational processes enterprise-wide', horizon:'med', effortScore:7, impactScore:9, effort:'high', impact:'high', roi:87, desc:'Align key operational processes across business units as a prerequisite for BDC data and process integration.', category:'process' },
+        { name:'Implement workflow and approval automation', horizon:'short', effortScore:4, impactScore:7, effort:'med', impact:'high', roi:82, desc:'Replace manual, email-based approvals with automated workflow tools ahead of BDC deployment.', category:'process' },
+        { name:'Establish process performance KPI framework', horizon:'short', effortScore:3, impactScore:6, effort:'low', impact:'med', roi:72, desc:'Define and track process efficiency KPIs to measure the impact of standardisation and automation.', category:'process' },
       ],
       progressing: [
-        { name:'Implement continuous accounting capabilities', horizon:'med', effortScore:6, impactScore:8, effort:'med', impact:'high', roi:84, desc:'Shift close activities to continuous accounting to enable real-time reporting in BDC.', category:'process' },
-        { name:'Align planning process to SAP Analytics Cloud', horizon:'med', effortScore:5, impactScore:8, effort:'med', impact:'high', roi:82, desc:'Migrate planning processes to SAC to leverage native BDC planning integration.', category:'process' },
+        { name:'Deploy end-to-end process automation across key domains', horizon:'med', effortScore:6, impactScore:8, effort:'med', impact:'high', roi:84, desc:'Extend automation across all major process domains to eliminate manual handoffs before BDC go-live.', category:'process' },
+        { name:'Align business processes to SAP best practice templates', horizon:'med', effortScore:5, impactScore:8, effort:'med', impact:'high', roi:82, desc:'Map existing processes to SAP BDC standard process templates to reduce customisation and accelerate deployment.', category:'process' },
       ],
       nearready: [
-        { name:'Configure BDC process orchestration framework', horizon:'med', effortScore:7, impactScore:9, effort:'high', impact:'high', roi:88, desc:'Design end-to-end process orchestration within BDC spanning close, consolidation, and reporting.', category:'process' },
-        { name:'Build unified close-to-report process on BDC', horizon:'long', effortScore:8, impactScore:9, effort:'high', impact:'high', roi:87, desc:'Deploy the integrated close-to-report process on BDC Group Reporting with automated consolidation.', category:'process' },
+        { name:'Configure BDC process orchestration framework', horizon:'med', effortScore:7, impactScore:9, effort:'high', impact:'high', roi:88, desc:'Design end-to-end process orchestration within BDC spanning operational execution, data capture, and reporting.', category:'process' },
+        { name:'Build unified operational intelligence layer on BDC', horizon:'long', effortScore:8, impactScore:9, effort:'high', impact:'high', roi:87, desc:'Deploy integrated operational reporting and process analytics on BDC with real-time data flows from all systems.', category:'process' },
       ],
       ready: [
-        { name:'Optimise BDC continuous planning model', horizon:'long', effortScore:7, impactScore:9, effort:'high', impact:'high', roi:89, desc:'Evolve to a continuous, driver-based planning model leveraging BDC\'s integrated SAC platform.', category:'process' },
+        { name:'Optimise BDC continuous process improvement model', horizon:'long', effortScore:7, impactScore:9, effort:'high', impact:'high', roi:89, desc:'Leverage BDC\'s embedded analytics and AI to continuously monitor, benchmark, and optimise business processes.', category:'process' },
       ]
     },
     technology: {
@@ -797,48 +869,48 @@ function dimensionActions(dimId, tier) {
     },
     org: {
       foundation: [
-        { name:'Secure executive sponsorship at CFO/CEO level', horizon:'short', effortScore:2, impactScore:9, effort:'low', impact:'high', roi:90, desc:'Identify and engage an active executive sponsor — critical for overcoming organisational resistance.', category:'org' },
-        { name:'Appoint transformation programme lead', horizon:'short', effortScore:3, impactScore:8, effort:'low', impact:'high', roi:85, desc:'Designate a dedicated programme director to own the BDC readiness and transformation journey.', category:'org' },
-        { name:'Develop OCM strategy and stakeholder engagement plan', horizon:'short', effortScore:3, impactScore:8, effort:'low', impact:'high', roi:83, desc:'Build a change management and communications plan tailored to the BDC transformation scope.', category:'org' },
+        { name:'Secure executive sponsorship at C-suite level', horizon:'short', effortScore:2, impactScore:9, effort:'low', impact:'high', roi:90, desc:'Identify and engage an active executive sponsor — this is the single most critical enabler for large-scale transformation success.', category:'org' },
+        { name:'Appoint transformation programme lead', horizon:'short', effortScore:3, impactScore:8, effort:'low', impact:'high', roi:85, desc:'Designate a dedicated programme director with authority and mandate to own the BDC readiness journey.', category:'org' },
+        { name:'Develop OCM strategy and stakeholder engagement plan', horizon:'short', effortScore:3, impactScore:8, effort:'low', impact:'high', roi:83, desc:'Build a change management and communications plan tailored to the breadth and scale of the BDC transformation.', category:'org' },
       ],
       early: [
-        { name:'Build cross-functional transformation governance', horizon:'short', effortScore:4, impactScore:8, effort:'med', impact:'high', roi:84, desc:'Establish a programme steering committee with Finance, IT, and business representation.', category:'org' },
-        { name:'Free Finance capacity via automation and outsourcing', horizon:'med', effortScore:6, impactScore:8, effort:'med', impact:'high', roi:83, desc:'Reduce BAU Finance workload by 20–30% to create capacity for transformation participation.', category:'org' },
-        { name:'Launch BDC awareness and education programme', horizon:'short', effortScore:3, impactScore:6, effort:'low', impact:'med', roi:72, desc:'Run internal workshops to build understanding of BDC capabilities and the case for change.', category:'org' },
+        { name:'Build cross-functional transformation governance', horizon:'short', effortScore:4, impactScore:8, effort:'med', impact:'high', roi:84, desc:'Establish a programme steering committee with representation from all key business and technology functions.', category:'org' },
+        { name:'Free operational capacity through automation and restructuring', horizon:'med', effortScore:6, impactScore:8, effort:'med', impact:'high', roi:83, desc:'Reduce BAU workload across key teams by 20–30% to create meaningful capacity for transformation participation.', category:'org' },
+        { name:'Launch BDC awareness and education programme', horizon:'short', effortScore:3, impactScore:6, effort:'low', impact:'med', roi:72, desc:'Run internal workshops to build understanding of BDC capabilities and the strategic case for change.', category:'org' },
       ],
       progressing: [
-        { name:'Invest in SAP BDC training and certification', horizon:'med', effortScore:5, impactScore:8, effort:'med', impact:'high', roi:82, desc:'Build internal BDC expertise through structured SAP training and certification programmes.', category:'org' },
-        { name:'Design future Finance operating model for BDC', horizon:'med', effortScore:5, impactScore:8, effort:'med', impact:'high', roi:83, desc:'Define how Finance roles, team structures, and processes will change post-BDC deployment.', category:'org' },
+        { name:'Invest in SAP BDC training and certification', horizon:'med', effortScore:5, impactScore:8, effort:'med', impact:'high', roi:82, desc:'Build internal BDC expertise through structured SAP training and certification programmes across key roles.', category:'org' },
+        { name:'Design future-state operating model for BDC', horizon:'med', effortScore:5, impactScore:8, effort:'med', impact:'high', roi:83, desc:'Define how roles, team structures, and ways of working will change post-BDC to realise the full business case.', category:'org' },
       ],
       nearready: [
-        { name:'Conduct BDC readiness validation workshop', horizon:'short', effortScore:3, impactScore:7, effort:'low', impact:'high', roi:80, desc:'Facilitate a structured readiness review with all stakeholders to confirm go/no-go for BDC scoping.', category:'org' },
-        { name:'Mobilise BDC project team and governance', horizon:'med', effortScore:5, impactScore:9, effort:'med', impact:'high', roi:86, desc:'Stand up the full BDC project team, including system integrator, with defined RACI and governance.', category:'org' },
+        { name:'Conduct BDC readiness validation workshop', horizon:'short', effortScore:3, impactScore:7, effort:'low', impact:'high', roi:80, desc:'Facilitate a structured readiness review with all stakeholders to confirm go/no-go for BDC programme mobilisation.', category:'org' },
+        { name:'Mobilise BDC project team and delivery governance', horizon:'med', effortScore:5, impactScore:9, effort:'med', impact:'high', roi:86, desc:'Stand up the full BDC project team including system integrator, with defined RACI, governance, and delivery cadence.', category:'org' },
       ],
       ready: [
-        { name:'Execute BDC programme delivery', horizon:'long', effortScore:10, impactScore:10, effort:'high', impact:'high', roi:92, desc:'Proceed to full BDC programme delivery with a defined scope, phased rollout plan, and business case.', category:'org' },
+        { name:'Execute BDC programme delivery', horizon:'long', effortScore:10, impactScore:10, effort:'high', impact:'high', roi:92, desc:'Proceed to full BDC programme delivery with defined scope, phased rollout plan, and realisation tracking.', category:'org' },
       ]
     },
     strategy: {
       foundation: [
-        { name:'Develop quantified BDC business case', horizon:'short', effortScore:3, impactScore:8, effort:'low', impact:'high', roi:85, desc:'Build a financial business case with quantified benefits — efficiency, risk reduction, working capital impact.', category:'strategy' },
-        { name:'Align BDC to enterprise digital strategy', horizon:'short', effortScore:2, impactScore:7, effort:'low', impact:'high', roi:82, desc:'Connect the BDC initiative to the broader enterprise digital and data strategy.', category:'strategy' },
-        { name:'Conduct SAP BDC discovery and market engagement', horizon:'short', effortScore:2, impactScore:6, effort:'low', impact:'med', roi:78, desc:'Engage SAP and HGS Advisory for a structured BDC discovery to understand scope, cost, and timeline.', category:'strategy' },
+        { name:'Develop quantified BDC business case', horizon:'short', effortScore:3, impactScore:8, effort:'low', impact:'high', roi:85, desc:'Build a financial business case quantifying efficiency gains, risk reduction, growth enablement, and competitive advantage.', category:'strategy' },
+        { name:'Align BDC to enterprise digital and data strategy', horizon:'short', effortScore:2, impactScore:7, effort:'low', impact:'high', roi:82, desc:'Explicitly connect the BDC initiative to the broader enterprise digital transformation and data strategy.', category:'strategy' },
+        { name:'Conduct SAP BDC discovery with HGS Advisory', horizon:'short', effortScore:2, impactScore:6, effort:'low', impact:'med', roi:78, desc:'Engage SAP and HGS Advisory for a structured BDC discovery to understand platform capabilities, scope, cost, and timeline.', category:'strategy' },
       ],
       early: [
-        { name:'Define phased BDC transformation roadmap', horizon:'short', effortScore:4, impactScore:9, effort:'med', impact:'high', roi:88, desc:'Develop a phased roadmap — from readiness to pilot to full deployment — with milestones and owners.', category:'strategy' },
-        { name:'Secure board-level investment approval', horizon:'med', effortScore:5, impactScore:9, effort:'med', impact:'high', roi:87, desc:'Present the BDC business case at board level to secure formal investment commitment.', category:'strategy' },
-        { name:'Align SAP BDC to M&A / growth strategy', horizon:'short', effortScore:3, impactScore:8, effort:'low', impact:'high', roi:83, desc:'Explicitly link BDC\'s consolidation capabilities to M&A integration and entity growth plans.', category:'strategy' },
+        { name:'Define phased BDC transformation roadmap', horizon:'short', effortScore:4, impactScore:9, effort:'med', impact:'high', roi:88, desc:'Develop a phased roadmap — from readiness through pilot to full deployment — with milestones, owners, and dependencies.', category:'strategy' },
+        { name:'Secure board-level investment approval', horizon:'med', effortScore:5, impactScore:9, effort:'med', impact:'high', roi:87, desc:'Present the BDC business case at board or executive level to secure formal investment commitment and programme mandate.', category:'strategy' },
+        { name:'Map BDC capabilities to strategic growth objectives', horizon:'short', effortScore:3, impactScore:8, effort:'low', impact:'high', roi:83, desc:'Explicitly connect BDC\'s data unification and AI capabilities to the organisation\'s growth, M&A, or innovation agenda.', category:'strategy' },
       ],
       progressing: [
-        { name:'Initiate SAP BDC vendor evaluation and selection', horizon:'med', effortScore:5, impactScore:9, effort:'med', impact:'high', roi:87, desc:'Run formal SAP BDC evaluation, SI selection, and commercial negotiation process.', category:'strategy' },
-        { name:'Establish BDC value realisation tracking framework', horizon:'short', effortScore:3, impactScore:6, effort:'low', impact:'med', roi:74, desc:'Define metrics and KPIs to track and report on BDC benefit realisation post go-live.', category:'strategy' },
+        { name:'Initiate SAP BDC vendor evaluation and SI selection', horizon:'med', effortScore:5, impactScore:9, effort:'med', impact:'high', roi:87, desc:'Run formal SAP BDC evaluation, system integrator selection, and commercial negotiation process.', category:'strategy' },
+        { name:'Establish BDC value realisation tracking framework', horizon:'short', effortScore:3, impactScore:6, effort:'low', impact:'med', roi:74, desc:'Define KPIs and measurement mechanisms to track and report on BDC benefit realisation post go-live.', category:'strategy' },
       ],
       nearready: [
-        { name:'Finalise BDC programme charter and scope', horizon:'short', effortScore:4, impactScore:9, effort:'med', impact:'high', roi:88, desc:'Complete the programme charter defining scope, phasing, budget, and success criteria.', category:'strategy' },
-        { name:'Commence BDC design and blueprint phase', horizon:'med', effortScore:7, impactScore:9, effort:'high', impact:'high', roi:90, desc:'Begin the formal BDC programme with design workshops, solution blueprint, and configuration.', category:'strategy' },
+        { name:'Finalise BDC programme charter and scope', horizon:'short', effortScore:4, impactScore:9, effort:'med', impact:'high', roi:88, desc:'Complete the programme charter defining scope, phasing, budget, governance, and success criteria.', category:'strategy' },
+        { name:'Commence BDC design and blueprint phase', horizon:'med', effortScore:7, impactScore:9, effort:'high', impact:'high', roi:90, desc:'Begin the formal BDC programme with discovery workshops, solution blueprint, and system configuration.', category:'strategy' },
       ],
       ready: [
-        { name:'Launch BDC global deployment programme', horizon:'long', effortScore:10, impactScore:10, effort:'high', impact:'high', roi:93, desc:'Execute BDC global rollout programme with phased entity deployments and hypercare planning.', category:'strategy' },
+        { name:'Launch BDC enterprise deployment programme', horizon:'long', effortScore:10, impactScore:10, effort:'high', impact:'high', roi:93, desc:'Execute BDC enterprise rollout with phased deployments across business units, geographies, and functions.', category:'strategy' },
       ]
     }
   };
@@ -848,39 +920,39 @@ function dimensionActions(dimId, tier) {
 function dimensionFinding(dimId, tier) {
   const f = {
     data: {
-      foundation:'Master data is highly fragmented and governance is minimal. This represents the highest-risk gap for BDC adoption — clean, governed data is a non-negotiable foundation. A data quality remediation and MDM programme must begin immediately.',
-      early:'Data governance is forming but significant harmonisation work remains. Prioritise COA harmonisation and automated intercompany reconciliation as these are critical BDC pre-requisites.',
-      progressing:'Good data foundations are in place with improving governance. Focus on connecting non-ERP data sources and completing MDM deployment to be fully BDC-ready.',
-      nearready:'Strong data quality and governance. Proceed to architect the BTP-based integration layer and initiate a BDC Central Finance pilot.',
-      ready:'Exceptional data readiness. Proceed directly to BDC Group Reporting deployment with confidence.'
+      foundation:'Enterprise data is highly fragmented with minimal governance. This is the highest-risk gap for BDC adoption — clean, trusted, and governed data is the non-negotiable foundation for everything BDC delivers. A data quality remediation and MDM programme must be initiated as the first priority.',
+      early:'Data governance is taking shape but significant harmonisation work remains across systems and domains. Prioritise master data consolidation and automated cross-system integration as these are critical BDC pre-requisites.',
+      progressing:'Good data foundations are in place with improving governance practices. Focus on connecting remaining source systems and completing MDM deployment to achieve full BDC data readiness.',
+      nearready:'Strong data quality and governance across core domains. Proceed to architect the BTP-based integration layer and initiate a BDC pilot with a defined subset of data and processes.',
+      ready:'Exceptional data readiness. Proceed directly to BDC deployment with confidence that the data foundation will support the platform\'s full capabilities.'
     },
     process: {
-      foundation:'Finance processes are unstandardised and heavily manual. Significant process standardisation work is required before BDC can deliver value. Document, baseline, and begin harmonisation immediately.',
-      early:'Standardisation is underway but gaps remain. R2R process alignment and close acceleration are the critical path items before BDC deployment can succeed.',
-      progressing:'Solid process standardisation with clear remaining gaps. Continuous accounting adoption and SAC planning alignment will complete the BDC process readiness.',
-      nearready:'Strong process maturity. Configure BDC process orchestration and begin designing the unified close-to-report process.',
-      ready:'Best-in-class process maturity. BDC will unlock the next level of automation, real-time reporting, and continuous planning.'
+      foundation:'Business processes are unstandardised, undocumented, and heavily manual. Significant process standardisation and automation work is required before BDC can deliver value. Document, baseline, and begin harmonisation across all key operational domains immediately.',
+      early:'Standardisation is underway but automation and consistency gaps remain. Cross-functional process alignment and elimination of manual data handoffs are the critical path items before BDC deployment can succeed.',
+      progressing:'Solid process foundations with clear areas for improvement. Driving end-to-end automation and embedding a continuous improvement culture will complete the BDC process readiness picture.',
+      nearready:'Strong process maturity with good governance. Configure BDC process orchestration and begin designing the target operating model to maximise value from the platform.',
+      ready:'Best-in-class process maturity. BDC will unlock the next level of automation, real-time operational intelligence, and enterprise-wide process optimisation.'
     },
     technology: {
-      foundation:'SAP technical foundation is insufficient for BDC. S/4HANA migration is the critical path — this is a multi-year programme that must begin immediately. Simultaneously invest in SAP capability building.',
-      early:'S/4HANA migration is the overriding priority. BDC cannot be deployed without S/4HANA as the transactional backbone. Accelerate migration and establish a SAP Centre of Excellence.',
-      progressing:'S/4HANA is in progress. Stabilise the deployment and begin SAP Datasphere and BTP foundations in parallel to reduce the time-to-BDC.',
-      nearready:'Strong technical foundations. Connect S/4HANA to BDC via BTP Integration Suite and deploy SAC to unlock the full BDC platform.',
-      ready:'Excellent technical readiness. Activate BDC advanced capabilities including embedded AI, Joule co-pilot, and predictive planning.'
+      foundation:'The SAP and broader technology foundation is insufficient for BDC. S/4HANA migration is the critical path — this is a multi-year programme that must begin immediately. Simultaneously invest in internal SAP and cloud capability building.',
+      early:'S/4HANA migration is the overriding technology priority. BDC requires S/4HANA as the core transactional system of record. Accelerate migration planning and establish a SAP Centre of Excellence in parallel.',
+      progressing:'S/4HANA is progressing. Stabilise the deployment and begin SAP Datasphere and BTP foundations to reduce time-to-BDC and avoid sequential delays.',
+      nearready:'Strong technical foundations in place. Connect S/4HANA to BDC via BTP Integration Suite and deploy SAC to unlock the full BDC analytics and planning capabilities.',
+      ready:'Excellent technical readiness across the SAP landscape. Activate BDC advanced capabilities including embedded AI, Joule co-pilot, and predictive analytics at scale.'
     },
     org: {
-      foundation:'Organisational readiness is the weakest dimension — without active executive sponsorship and programme leadership, no technology programme will succeed. Secure sponsorship and appoint a programme lead as immediate actions.',
-      early:'Governance structures are forming but capacity constraints and change management gaps remain. Free Finance capacity and build cross-functional governance before mobilising the BDC programme.',
-      progressing:'Good organisational momentum. Invest in BDC training and design the future Finance operating model to sustain the programme.',
-      nearready:'Strong organisational readiness. Conduct the BDC readiness validation workshop and mobilise the full project team to begin scoping.',
-      ready:'Excellent organisational readiness and sponsorship. Proceed directly to BDC programme delivery.'
+      foundation:'Organisational readiness is the most critical gap — without active executive sponsorship and dedicated programme leadership, no technology transformation will succeed. Securing sponsorship and appointing a programme lead are the highest-priority immediate actions.',
+      early:'Governance structures are beginning to form but capacity constraints and change management gaps remain. Free up organisational capacity and establish cross-functional governance before mobilising the BDC programme.',
+      progressing:'Good organisational momentum is building. Invest in BDC awareness and education, and begin designing the future operating model to sustain programme delivery through to go-live.',
+      nearready:'Strong organisational readiness and leadership alignment. Conduct a formal readiness validation and mobilise the full project team and system integrator to begin detailed scoping.',
+      ready:'Excellent organisational readiness, sponsorship, and capacity. Proceed directly to BDC programme delivery with a high probability of success.'
     },
     strategy: {
-      foundation:'The strategic rationale for BDC is unclear and the business case is undefined. Develop a quantified business case, align BDC to enterprise strategy, and engage SAP and HGS for a structured discovery before proceeding.',
-      early:'Strategic direction is forming. Define a phased roadmap, secure board investment approval, and commence vendor evaluation to build programme momentum.',
-      progressing:'Clear strategic vision with a developing business case. Initiate formal vendor evaluation and build the value realisation tracking framework.',
-      nearready:'Strong strategic alignment and business case. Finalise the programme charter and commence the BDC design and blueprint phase.',
-      ready:'Excellent strategic clarity and board commitment. Launch the BDC global deployment programme with confidence.'
+      foundation:'The strategic rationale for BDC has not yet been clearly defined and the business case is undeveloped. Establish the strategic intent, quantify the business case, and engage SAP and HGS Advisory for a structured discovery workshop before proceeding.',
+      early:'Strategic direction is forming but investment approval and a formal roadmap are still needed. Define a phased transformation roadmap, build the business case for board approval, and begin vendor engagement.',
+      progressing:'Clear strategic vision with a developing investment case. Initiate formal vendor evaluation, define value realisation metrics, and align BDC explicitly to enterprise data and digital strategy.',
+      nearready:'Strong strategic alignment and a well-developed business case. Finalise the programme charter, confirm funding, and commence the BDC design and blueprint phase with your chosen system integrator.',
+      ready:'Excellent strategic clarity with board-level commitment and investment approval. Launch the BDC deployment programme with a well-sequenced rollout plan and defined hypercare strategy.'
     }
   };
   return (f[dimId] && f[dimId][tier]) || 'Finding being generated based on your responses.';
@@ -893,6 +965,7 @@ function buildResults() {
   const name     = document.getElementById('f-name').value.trim();
   const role     = document.getElementById('f-role').value.trim();
   const org      = document.getElementById('f-org').value.trim();
+  const email    = document.getElementById('f-email').value.trim();
   const advisor  = document.getElementById('f-advisor').value.trim();
   const industry = document.getElementById('f-industry').value || 'Not specified';
   const size     = document.getElementById('f-size').value || 'Not specified';
@@ -913,14 +986,19 @@ function buildResults() {
   const overallScore = Math.round(overallPct * 100);
   const roadmap = buildRoadmapWithOverrides(dimScores);
 
+  const dimPayload = {};
+  dimScores.forEach(d => {
+    dimPayload['dim_' + d.id + '_score'] = d.raw;
+    dimPayload['dim_' + d.id + '_tier']  = d.tier.label;
+  });
   submitToSheets({
-    timestamp: new Date().toISOString(), name, role, org, industry, size, advisor, date,
+    timestamp: new Date().toISOString(), name, role, org, email, industry, size, advisor, date,
     overall_score: overallScore, overall_tier: overallTier.label,
-    ...Object.fromEntries(dimScores.flatMap(d => [`dim_${d.id}_score`, d.raw], [`dim_${d.id}_tier`, d.tier.label]).reduce((a,b,i,arr) => i%2===0?[...a,[arr[i],arr[i+1]]]:a,[]))
+    ...dimPayload
   });
 
   document.getElementById('screen-results').innerHTML = `
-    ${renderResultsHero(name, role, org, date, overallScore, overallTier, industry, size, advisor)}
+    ${renderResultsHero(name, role, org, date, overallScore, overallTier, industry, size, advisor, email)}
     ${renderReadinessScale(overallTier)}
     ${renderDimensionScores(dimScores)}
     ${renderRadar(dimScores)}
@@ -938,7 +1016,7 @@ function buildResults() {
   if (inp) inp.value = getSheetsUrl();
 }
 
-function renderResultsHero(name, role, org, date, score, tier, industry, size, advisor) {
+function renderResultsHero(name, role, org, date, score, tier, industry, size, advisor, email) {
   const formatted = date ? new Date(date).toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'}) : '';
   const tierHex = { foundation:'#E05555', early:'#E8943A', progressing:'#E8C23A', nearready:'#3BAB7A', ready:'#0A7AE5' };
   const tc = tierHex[tier.key];
@@ -954,6 +1032,7 @@ function renderResultsHero(name, role, org, date, score, tier, industry, size, a
         ${industry !== 'Not specified' ? `<div style="font-size:12px;color:var(--silver)"><span style="color:#fff;font-weight:500;">Industry:</span> ${industry}</div>` : ''}
         ${size !== 'Not specified' ? `<div style="font-size:12px;color:var(--silver)"><span style="color:#fff;font-weight:500;">Size:</span> ${size}</div>` : ''}
         ${formatted ? `<div style="font-size:12px;color:var(--silver)"><span style="color:#fff;font-weight:500;">Date:</span> ${formatted}</div>` : ''}
+        ${email ? `<div style="font-size:12px;color:var(--silver)"><span style="color:#fff;font-weight:500;">Email:</span> ${email}</div>` : ''}
         ${advisor ? `<div style="font-size:12px;color:var(--silver)"><span style="color:#fff;font-weight:500;">Advisor:</span> ${advisor}</div>` : ''}
       </div>
     </div>
@@ -1190,7 +1269,8 @@ function renderResultsCTA() {
 
 function retake() {
   answers = {}; currentSection = 0;
-  ['f-name','f-role','f-org','f-advisor'].forEach(id => document.getElementById(id).value='');
+  ['f-name','f-role','f-org','f-email','f-advisor'].forEach(id => document.getElementById(id).value='');
+  const errEl = document.getElementById('email-error'); if (errEl) errEl.textContent = '';
   document.getElementById('f-industry').value=''; document.getElementById('f-size').value='';
   document.getElementById('btn-start').disabled = true;
   showScreen('screen-intro');
@@ -1201,6 +1281,7 @@ function retake() {
 // ══════════════════════════════════════════════
 function buildReportHTML() {
   const name=document.getElementById('f-name').value.trim(), role=document.getElementById('f-role').value.trim(), org=document.getElementById('f-org').value.trim();
+  const email=document.getElementById('f-email').value.trim();
   const date=document.getElementById('f-date').value, advisor=document.getElementById('f-advisor').value.trim();
   const industry=document.getElementById('f-industry').value||'—', size=document.getElementById('f-size').value||'—';
   const formatted=date?new Date(date).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}):'—';
@@ -1222,7 +1303,7 @@ function buildReportHTML() {
       <div><div style="font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#6B8099;margin-bottom:12px;">HGS Advisory · SAP Business Data Cloud</div><h1 style="font-size:34px;font-weight:700;color:#fff;line-height:1.1;margin-bottom:6px;">BDC Readiness<br><span style="color:#0A7AE5;">Assessment Report</span></h1><p style="font-size:13px;color:#6B8099;margin-top:12px;">Prepared for: <strong style="color:#fff;">${name}</strong> &nbsp;·&nbsp; ${role} &nbsp;·&nbsp; ${org}</p></div>
       <div style="text-align:center;background:#0f1f30;border:1px solid #1e3448;border-radius:16px;padding:24px 28px;min-width:140px;flex-shrink:0;"><div style="font-size:52px;font-weight:700;color:${tc};line-height:1;">${overallScore}</div><div style="font-size:12px;color:#6B8099;">/100</div><div style="margin-top:8px;padding:4px 12px;background:${tc}22;border:1px solid ${tc}55;border-radius:20px;display:inline-block;font-size:10px;font-weight:700;color:${tc};letter-spacing:.08em;text-transform:uppercase;">${overallTier.label}</div><div style="font-size:10px;color:#6B8099;margin-top:6px;">Tier ${overallTier.num} of 5</div></div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-top:28px;">${[['Industry',industry],['Revenue',size],['Assessment Date',formatted],['HGS Advisor',advisor||'—']].map(([k,v])=>`<div style="background:#0f1f30;border:1px solid #1e3448;border-radius:8px;padding:12px 14px;"><div style="font-size:10px;color:#6B8099;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;">${k}</div><div style="font-size:12px;font-weight:600;color:#fff;">${v}</div></div>`).join('')}</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-top:28px;">${[['Industry',industry],['Revenue',size],['Assessment Date',formatted],['Contact Email',email||'—'],['HGS Advisor',advisor||'—']].map(([k,v])=>`<div style="background:#0f1f30;border:1px solid #1e3448;border-radius:8px;padding:12px 14px;"><div style="font-size:10px;color:#6B8099;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;">${k}</div><div style="font-size:12px;font-weight:600;color:#fff;">${v}</div></div>`).join('')}</div>
     <div style="margin-top:20px;padding:16px 20px;background:#0f1f30;border:1px solid ${tc}33;border-radius:10px;"><span style="color:${tc};font-weight:600;">Overall Readiness: </span><span style="color:#ccc;">${tierTagline(overallTier.key)}</span></div>
   </div>
   ${secHdr('Readiness Dimension Scores','Maturity assessed across 5 critical BDC readiness dimensions')}
