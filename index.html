@@ -785,6 +785,13 @@ function prevSection() {
 // ══════════════════════════════════════════════
 // GOOGLE SHEETS / DRIVE WEBHOOK
 // ══════════════════════════════════════════════
+function getSheetsUrl() {
+  try { return localStorage.getItem('bdc_sheets_url') || ''; } catch(e) { return ''; }
+}
+function saveSheetsUrl(val) {
+  try { localStorage.setItem('bdc_sheets_url', val); } catch(e) {}
+}
+
 async function testWebhook() {
   const url = getSheetsUrl();
   const statusEl = document.getElementById('webhook-test-status');
