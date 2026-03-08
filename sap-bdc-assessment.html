@@ -1,0 +1,1385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAP BDC Readiness Assessment | HGS Advisory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #07111C;
+  --ink2: #0E1E2E;
+  --blue: #0057B8;
+  --blue-light: #0A7AE5;
+  --blue-mist: rgba(0,87,184,0.12);
+  --gold: #C9922B;
+  --gold-light: #E8B24A;
+  --silver: #6B8099;
+  --mist: rgba(255,255,255,0.05);
+  --border: rgba(255,255,255,0.08);
+  --white: #FFFFFF;
+  --danger: #E05555;
+  --warn: #E8943A;
+  --ok: #3BAB7A;
+  --great: #0A7AE5;
+  --best: #8A5CF6;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--ink);
+  color: var(--white);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 5% 5%, rgba(0,87,184,0.18) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 50% at 95% 90%, rgba(201,146,43,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse 70% 50% at 50% 50%, rgba(14,30,46,0.7) 0%, transparent 70%);
+  pointer-events: none; z-index: 0;
+}
+.noise {
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 0; opacity: 0.4;
+}
+.shell {
+  position: relative; z-index: 1;
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 40px 24px 100px;
+}
+.screen { display: none; }
+.screen.active { display: block; animation: fadeUp 0.45s ease both; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* BRAND */
+.brand { display: flex; align-items: center; gap: 14px; margin-bottom: 52px; }
+.brand-mark {
+  width: 44px; height: 44px;
+  background: linear-gradient(135deg, var(--blue), var(--blue-light));
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 700; font-size: 20px; color: #fff;
+  flex-shrink: 0;
+  box-shadow: 0 4px 16px rgba(0,87,184,0.4);
+}
+.brand-name { font-size: 12px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--silver); }
+.brand-divider { flex: 1; height: 1px; background: var(--border); }
+.brand-tag { font-size: 11px; color: var(--silver); letter-spacing: 0.08em; font-style: italic; }
+
+/* EYEBROW / HERO */
+.eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--blue-light); margin-bottom: 16px; }
+.hero-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(36px, 6vw, 62px); font-weight: 700; line-height: 1.08; margin-bottom: 24px; }
+.hero-title em { color: var(--blue-light); font-style: italic; }
+.hero-sub { font-size: 16px; font-weight: 300; color: var(--silver); line-height: 1.65; max-width: 580px; margin-bottom: 40px; }
+
+.assessment-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 44px; }
+.meta-item { background: var(--mist); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; }
+.meta-num { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 700; color: var(--blue-light); line-height: 1; margin-bottom: 4px; }
+.meta-desc { font-size: 12px; color: var(--silver); font-weight: 400; }
+
+.field-section { background: var(--mist); border: 1px solid var(--border); border-radius: 16px; padding: 28px; margin-bottom: 32px; }
+.field-section-title { font-size: 11px; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: var(--blue-light); margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+.field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.field-full { grid-column: 1 / -1; }
+.field label { display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--silver); margin-bottom: 8px; }
+.field input, .field select {
+  width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px; padding: 11px 14px; font-family: 'Outfit', sans-serif;
+  font-size: 15px; color: var(--white); outline: none;
+  transition: border-color 0.2s, background 0.2s; -webkit-appearance: none;
+}
+.field input::placeholder { color: rgba(255,255,255,0.22); }
+.field input:focus, .field select:focus { border-color: var(--blue); background: rgba(0,87,184,0.07); }
+.field select option { background: var(--ink2); color: var(--white); }
+
+/* BUTTONS */
+.btn-primary {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  padding: 14px 32px;
+  background: linear-gradient(135deg, var(--blue), var(--blue-light));
+  border: none; border-radius: 9px;
+  font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase; color: #fff;
+  cursor: pointer; transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+  box-shadow: 0 4px 20px rgba(0,87,184,0.35);
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,87,184,0.5); }
+.btn-primary:disabled { opacity: 0.35; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-ghost {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: transparent; border: 1px solid rgba(255,255,255,0.15);
+  color: var(--silver); padding: 12px 22px; border-radius: 9px;
+  font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: border-color 0.2s, color 0.2s;
+}
+.btn-ghost:hover { border-color: rgba(255,255,255,0.3); color: var(--white); }
+.btn-gold {
+  display: inline-flex; align-items: center; gap: 10px; padding: 14px 28px;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  border: none; border-radius: 9px;
+  font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink);
+  cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 20px rgba(201,146,43,0.3);
+}
+.btn-gold:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(201,146,43,0.45); }
+
+/* QUIZ */
+.progress-wrap { margin-bottom: 8px; }
+.progress-track { height: 3px; background: rgba(255,255,255,0.08); border-radius: 100px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--blue), var(--blue-light)); border-radius: 100px; transition: width 0.4s ease; }
+.progress-meta { display: flex; justify-content: space-between; font-size: 11px; color: var(--silver); margin-top: 6px; }
+.section-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 28px; }
+.section-tab { padding: 6px 12px; border-radius: 100px; font-size: 11px; font-weight: 500; border: 1px solid var(--border); color: var(--silver); background: var(--mist); transition: all 0.2s; cursor: default; white-space: nowrap; }
+.section-tab.active { background: var(--blue-mist); border-color: var(--blue); color: var(--blue-light); }
+.section-tab.done { background: rgba(59,171,122,0.1); border-color: rgba(59,171,122,0.4); color: var(--ok); }
+.section-header { margin-bottom: 28px; }
+.section-icon { font-size: 28px; margin-bottom: 10px; }
+.section-name { font-family: 'Cormorant Garamond', serif; font-size: clamp(22px, 4vw, 32px); font-weight: 700; margin-bottom: 6px; }
+.section-desc { font-size: 13px; color: var(--silver); font-weight: 300; }
+.q-card { background: var(--mist); border: 1px solid var(--border); border-radius: 14px; padding: 28px 24px; margin-bottom: 16px; transition: border-color 0.2s; }
+.q-card.answered { border-color: rgba(0,87,184,0.35); }
+.q-num { font-size: 10px; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: var(--blue-light); margin-bottom: 10px; }
+.q-text { font-size: 15px; font-weight: 500; line-height: 1.45; margin-bottom: 18px; color: var(--white); }
+.q-options { display: flex; flex-direction: column; gap: 8px; }
+.q-option { display: flex; align-items: flex-start; gap: 12px; padding: 11px 14px; border: 1px solid rgba(255,255,255,0.07); border-radius: 9px; cursor: pointer; transition: all 0.18s; background: rgba(255,255,255,0.02); }
+.q-option:hover { border-color: rgba(0,87,184,0.35); background: rgba(0,87,184,0.05); }
+.q-option.selected { border-color: var(--blue); background: rgba(0,87,184,0.1); }
+.q-radio { width: 18px; height: 18px; flex-shrink: 0; border: 2px solid rgba(255,255,255,0.2); border-radius: 50%; margin-top: 1px; display: flex; align-items: center; justify-content: center; transition: border-color 0.18s; }
+.q-radio::after { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--blue-light); opacity: 0; transform: scale(0.4); transition: all 0.18s; }
+.q-option.selected .q-radio { border-color: var(--blue-light); }
+.q-option.selected .q-radio::after { opacity: 1; transform: scale(1); }
+.q-option-text { font-size: 13px; color: rgba(255,255,255,0.82); line-height: 1.4; flex: 1; }
+.q-option-score { margin-left: auto; flex-shrink: 0; font-size: 10px; font-weight: 600; color: rgba(255,255,255,0.2); padding-top: 2px; }
+.section-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; gap: 12px; }
+.section-progress-text { font-size: 12px; color: var(--silver); }
+
+/* RESULTS */
+.results-hero { display: grid; grid-template-columns: 1fr auto; gap: 32px; align-items: start; margin-bottom: 40px; padding: 36px; background: var(--mist); border: 1px solid var(--border); border-radius: 20px; }
+@media(max-width:600px) { .results-hero { grid-template-columns: 1fr; } }
+.results-name { font-family: 'Cormorant Garamond', serif; font-size: clamp(26px, 4vw, 38px); font-weight: 700; margin-bottom: 4px; }
+.results-org { font-size: 14px; color: var(--silver); margin-bottom: 20px; }
+.overall-score-block { text-align: center; padding: 24px 32px; background: var(--mist); border: 1px solid var(--border); border-radius: 14px; min-width: 160px; }
+.overall-score-num { font-family: 'Cormorant Garamond', serif; font-size: 56px; font-weight: 700; line-height: 1; color: var(--blue-light); }
+.tier-pill { display: inline-flex; align-items: center; gap: 8px; padding: 8px 18px; border-radius: 100px; font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
+.tier-tagline { font-size: 14px; color: var(--silver); font-weight: 300; }
+
+/* READINESS SCALE */
+.readiness-scale { display: flex; gap: 4px; margin: 16px 0; align-items: stretch; }
+.scale-segment { flex: 1; height: 8px; border-radius: 4px; transition: opacity 0.3s; }
+.scale-segment.active { box-shadow: 0 0 12px currentColor; }
+.scale-segment.inactive { opacity: 0.2; }
+
+/* DIM SCORES */
+.dim-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; margin-bottom: 28px; }
+.dim-card { background: var(--mist); border: 1px solid var(--border); border-radius: 12px; padding: 20px; position: relative; overflow: hidden; }
+.dim-icon { font-size: 22px; margin-bottom: 10px; }
+.dim-name { font-size: 12px; font-weight: 600; letter-spacing: 0.04em; color: var(--silver); margin-bottom: 8px; }
+.dim-score-row { display: flex; align-items: baseline; gap: 6px; margin-bottom: 10px; }
+.dim-score-big { font-family: 'Cormorant Garamond', serif; font-size: 30px; font-weight: 700; line-height: 1; }
+.dim-score-max { font-size: 13px; color: var(--silver); }
+.dim-bar { height: 4px; background: rgba(255,255,255,0.08); border-radius: 100px; overflow: hidden; }
+.dim-bar-fill { height: 100%; border-radius: 100px; transition: width 1s ease; }
+.dim-tier-label { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin-top: 8px; }
+
+/* RADAR */
+.radar-wrap { background: var(--mist); border: 1px solid var(--border); border-radius: 16px; padding: 28px; margin-bottom: 32px; display: flex; flex-direction: column; align-items: center; }
+#radarCanvas { max-width: 100%; }
+
+/* BUBBLE CHART */
+.bfb-wrap { background: var(--mist); border: 1px solid var(--border); border-radius: 16px; padding: 28px; margin-bottom: 32px; }
+.bfb-svg-wrap { position: relative; width: 100%; margin: 20px 0 8px; user-select: none; }
+.bfb-svg-wrap svg { width: 100%; display: block; }
+.bfb-legend { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 14px; font-size: 11px; color: var(--silver); align-items: center; }
+.bfb-legend-item { display: flex; align-items: center; gap: 7px; }
+.bfb-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.bfb-tooltip { position: absolute; pointer-events: none; background: #08192b; border: 1px solid rgba(0,87,184,0.5); border-radius: 10px; padding: 12px 14px; font-size: 12px; max-width: 240px; box-shadow: 0 8px 28px rgba(0,0,0,0.5); z-index: 100; transition: opacity 0.15s; opacity: 0; line-height: 1.5; }
+.bfb-tooltip.visible { opacity: 1; }
+.bfb-tooltip-name { font-weight: 600; color: #fff; margin-bottom: 5px; font-size: 13px; }
+.bfb-tooltip-dim { color: var(--blue-light); font-size: 11px; margin-bottom: 7px; }
+.bfb-tooltip-row { display: flex; justify-content: space-between; gap: 16px; color: var(--silver); font-size: 11px; }
+.bfb-tooltip-val { font-weight: 600; color: #fff; }
+.bfb-quadrants { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 4px; margin-bottom: 32px; }
+@media(max-width:560px) { .bfb-quadrants { grid-template-columns: 1fr; } }
+.bfb-qcard { border-radius: 12px; border: 1px solid var(--border); padding: 18px 20px; background: var(--mist); }
+.bfb-qcard-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.bfb-qcard-title { font-size: 13px; font-weight: 700; }
+.bfb-qcard-sub { font-size: 11px; color: var(--silver); margin-top: 1px; }
+.bfb-qcard-items { display: flex; flex-direction: column; gap: 8px; }
+.bfb-action-pill { display: flex; align-items: flex-start; gap: 9px; padding: 9px 12px; border-radius: 8px; border: 1px solid transparent; cursor: pointer; transition: all 0.18s; }
+.bfb-action-pill:hover { filter: brightness(1.15); }
+.bfb-action-pill-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+.bfb-action-pill-body { flex: 1; min-width: 0; }
+.bfb-action-pill-name { font-size: 12px; font-weight: 500; color: #fff; line-height: 1.35; }
+.bfb-action-pill-meta { font-size: 10px; color: var(--silver); margin-top: 2px; }
+.bfb-action-pill-roi { font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+
+/* ROADMAP */
+.roadmap-section { margin-bottom: 32px; }
+.roadmap-tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+.roadmap-tab { padding: 8px 18px; border-radius: 8px; font-size: 12px; font-weight: 600; border: 1px solid var(--border); color: var(--silver); background: var(--mist); cursor: pointer; transition: all 0.2s; letter-spacing: 0.04em; }
+.roadmap-tab.active { background: var(--blue-mist); border-color: var(--blue); color: var(--blue-light); }
+.roadmap-table { width: 100%; border-collapse: collapse; }
+.roadmap-table th { text-align: left; font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--silver); padding: 8px 14px; border-bottom: 1px solid var(--border); }
+.roadmap-table td { padding: 14px; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: top; line-height: 1.45; }
+.roadmap-table tr:hover td { background: rgba(255,255,255,0.02); }
+.roadmap-pane { display: none; }
+.roadmap-pane.active { display: block; }
+.impact-badge { display: inline-block; padding: 3px 10px; border-radius: 100px; font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+.impact-high { background: rgba(59,171,122,0.15); color: var(--ok); }
+.impact-med  { background: rgba(232,148,58,0.15); color: var(--warn); }
+.impact-low  { background: rgba(107,128,153,0.15); color: var(--silver); }
+.cost-badge { display: inline-block; padding: 3px 10px; border-radius: 100px; font-size: 10px; font-weight: 600; }
+.cost-low  { background: rgba(59,171,122,0.1); color: var(--ok); border: 1px solid rgba(59,171,122,0.3); }
+.cost-med  { background: rgba(232,148,58,0.1); color: var(--warn); border: 1px solid rgba(232,148,58,0.3); }
+.cost-high { background: rgba(224,85,85,0.1); color: var(--danger); border: 1px solid rgba(224,85,85,0.3); }
+
+/* FINDINGS */
+.findings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 32px; }
+@media(max-width:600px) { .findings-grid { grid-template-columns: 1fr; } }
+.finding-card { background: var(--mist); border: 1px solid var(--border); border-radius: 14px; padding: 24px; }
+.finding-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.finding-icon { font-size: 20px; }
+.finding-name { font-size: 13px; font-weight: 600; }
+.finding-score-pill { margin-left: auto; padding: 3px 10px; border-radius: 100px; font-size: 11px; font-weight: 700; }
+.finding-text { font-size: 12px; color: var(--silver); line-height: 1.55; margin-bottom: 12px; }
+.finding-recs { display: flex; flex-direction: column; gap: 6px; }
+.finding-rec { display: flex; gap: 8px; font-size: 12px; color: rgba(255,255,255,0.75); line-height: 1.4; }
+.finding-rec::before { content: '›'; color: var(--blue-light); flex-shrink: 0; font-weight: 600; }
+
+/* CTA */
+.results-cta { background: linear-gradient(135deg, rgba(0,87,184,0.15), rgba(10,122,229,0.06)); border: 1px solid rgba(0,87,184,0.3); border-radius: 16px; padding: 36px; text-align: center; margin-bottom: 32px; }
+.results-cta h3 { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 700; margin-bottom: 10px; }
+.results-cta p { font-size: 14px; color: var(--silver); margin-bottom: 24px; }
+.cta-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+/* SECTION TITLE BAR */
+.section-title-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.section-title-bar h2 { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 700; }
+.section-title-bar::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* TIER COLORS */
+.t-foundation { color: var(--danger); }
+.t-early      { color: var(--warn); }
+.t-progressing{ color: #E8C23A; }
+.t-nearready  { color: var(--ok); }
+.t-ready      { color: var(--great); }
+
+.pill-foundation  { background: rgba(224,85,85,0.15); border: 1px solid rgba(224,85,85,0.4); color: var(--danger); }
+.pill-early       { background: rgba(232,148,58,0.15); border: 1px solid rgba(232,148,58,0.4); color: var(--warn); }
+.pill-progressing { background: rgba(232,194,58,0.15); border: 1px solid rgba(232,194,58,0.4); color: #E8C23A; }
+.pill-nearready   { background: rgba(59,171,122,0.15); border: 1px solid rgba(59,171,122,0.4); color: var(--ok); }
+.pill-ready       { background: rgba(10,122,229,0.15); border: 1px solid rgba(10,122,229,0.4); color: var(--great); }
+
+.bar-foundation  { background: var(--danger); }
+.bar-early       { background: var(--warn); }
+.bar-progressing { background: #E8C23A; }
+.bar-nearready   { background: var(--ok); }
+.bar-ready       { background: var(--great); }
+.top-foundation  { background: var(--danger); }
+.top-early       { background: var(--warn); }
+.top-progressing { background: #E8C23A; }
+.top-nearready   { background: var(--ok); }
+.top-ready       { background: var(--great); }
+
+/* SETTINGS */
+.settings-tab { background: none; border: none; border-bottom: 2px solid transparent; padding: 10px 18px; cursor: pointer; color: var(--silver); font-family: Outfit, sans-serif; font-size: 13px; font-weight: 500; transition: all 0.18s; margin-bottom: -1px; }
+.settings-tab:hover { color: var(--white); }
+.settings-tab.active { color: var(--blue-light); border-bottom-color: var(--blue-light); }
+.settings-panel { display: none; }
+.settings-panel.active { display: block; }
+.settings-section-header { background: var(--ink2); border: 1px solid var(--border); border-radius: 12px 12px 0 0; padding: 14px 18px; display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; margin-top: 16px; }
+.settings-section-header:hover { border-color: rgba(255,255,255,0.14); }
+.settings-section-title { font-size: 14px; font-weight: 600; flex: 1; }
+.settings-section-icon { font-size: 18px; }
+.settings-section-chevron { color: var(--silver); font-size: 12px; transition: transform 0.2s; }
+.settings-section-chevron.open { transform: rotate(180deg); }
+.settings-section-body { border: 1px solid var(--border); border-top: none; border-radius: 0 0 12px 12px; padding: 0 18px; display: none; }
+.settings-section-body.open { display: block; padding: 18px; }
+.settings-question-block { border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 14px; background: var(--mist); }
+.settings-q-label { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--blue-light); margin-bottom: 8px; font-weight: 600; }
+.settings-input { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; color: var(--white); font-family: Outfit, sans-serif; font-size: 13px; transition: border-color 0.15s; }
+.settings-input:focus { outline: none; border-color: var(--blue); }
+.settings-option-row { display: grid; grid-template-columns: 1fr 72px; gap: 8px; align-items: center; margin-top: 8px; }
+.settings-score-input { background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 8px; padding: 8px; color: var(--blue-light); font-family: Outfit, sans-serif; font-size: 13px; font-weight: 700; text-align: center; width: 100%; }
+.settings-score-input:focus { outline: none; border-color: var(--blue); }
+.settings-option-label { font-size: 10px; color: var(--silver); text-align: center; margin-top: 2px; }
+.action-score-row { display: grid; grid-template-columns: 1fr 90px 90px; gap: 12px; align-items: center; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+.action-score-row:last-child { border-bottom: none; }
+.action-score-row:hover { background: var(--mist); }
+.action-score-name { font-size: 12px; color: var(--white); line-height: 1.4; }
+.action-score-dim { font-size: 10px; color: var(--silver); margin-top: 2px; }
+.score-input-wrap { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.score-input-wrap input { width: 60px; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 8px; padding: 7px 6px; color: var(--blue-light); font-family: Outfit, sans-serif; font-size: 14px; font-weight: 700; text-align: center; }
+.score-input-wrap input:focus { outline: none; border-color: var(--blue); }
+.score-input-label { font-size: 10px; color: var(--silver); }
+
+@media(max-width:520px) { .field-grid { grid-template-columns: 1fr; } }
+@media(max-width:560px) { .action-score-row { grid-template-columns: 1fr; } .settings-option-row { grid-template-columns: 1fr 60px; } }
+</style>
+</head>
+<body>
+<div class="noise"></div>
+<div class="shell">
+  <div class="brand">
+    <div class="brand-mark">H</div>
+    <div class="brand-name">HGS Advisory</div>
+    <div class="brand-divider"></div>
+    <div class="brand-tag">SAP BDC Readiness Assessment</div>
+    <button id="settings-btn" onclick="openSettings()" title="Admin Settings" style="margin-left:auto;background:none;border:1px solid var(--border);border-radius:8px;padding:7px 10px;cursor:pointer;color:var(--silver);display:none;align-items:center;gap:6px;font-size:12px;font-family:Outfit,sans-serif;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue-light)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--silver)'">
+      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
+      Admin Settings
+    </button>
+  </div>
+
+  <!-- ══ SCREEN: SETTINGS ══ -->
+  <div id="screen-settings" class="screen">
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:32px;flex-wrap:wrap;">
+      <div>
+        <div class="eyebrow">Admin Configuration</div>
+        <h1 style="font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:700;line-height:1.1;">Assessment <em style="color:var(--blue-light);font-style:italic;">Settings</em></h1>
+      </div>
+      <button onclick="showScreen('screen-intro')" style="margin-left:auto;background:none;border:1px solid var(--border);border-radius:8px;padding:9px 16px;cursor:pointer;color:var(--silver);font-family:Outfit,sans-serif;font-size:13px;">← Back to Assessment</button>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-bottom:28px;border-bottom:1px solid var(--border);">
+      <button class="settings-tab active" id="stab-questions" onclick="switchSettingsTab('questions')">📋 Questions & Answers</button>
+      <button class="settings-tab" id="stab-actions" onclick="switchSettingsTab('actions')">🎯 Action Scores</button>
+      <button class="settings-tab" id="stab-integration" onclick="switchSettingsTab('integration')">🔗 Integration</button>
+      <button class="settings-tab" id="stab-reset" onclick="switchSettingsTab('reset')">🔄 Reset</button>
+    </div>
+
+    <div id="spanel-questions" class="settings-panel active">
+      <p style="font-size:13px;color:var(--silver);margin-bottom:24px;">Edit question text, answer options, and scores (1–10) for each answer. Changes are saved automatically.</p>
+      <div id="settings-questions-body"></div>
+    </div>
+
+    <div id="spanel-actions" class="settings-panel">
+      <p style="font-size:13px;color:var(--silver);margin-bottom:24px;">Set the <strong style="color:#fff">Effort Score</strong> (1=minimal, 10=very high) and <strong style="color:#fff">Impact Score</strong> (1=low, 10=transformational) for each recommended action. These control bubble placement in the Value vs. Effort matrix.</p>
+      <div id="settings-actions-body"></div>
+    </div>
+
+    <div id="spanel-integration" class="settings-panel">
+      <div style="max-width:600px;">
+        <div style="background:var(--mist);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:20px;">
+          <h3 style="font-size:16px;font-weight:700;margin-bottom:8px;">📊 Google Sheets Integration</h3>
+          <p style="font-size:13px;color:var(--silver);margin-bottom:16px;line-height:1.6;">Paste your Google Apps Script Web App URL to automatically log all assessment submissions to a Google Sheet.</p>
+          <label style="font-size:11px;color:var(--silver);letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:8px;">Apps Script Web App URL</label>
+          <input type="text" id="sheets-url-input" class="settings-input" placeholder="https://script.google.com/macros/s/..." style="margin-bottom:12px;" value="" oninput="saveSheetsUrl(this.value)">
+          <p style="font-size:11px;color:var(--silver);line-height:1.6;">Deploy an Apps Script as a Web App with <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;">doPost(e)</code> to receive assessment data as JSON. The payload includes all scores, dimension results, and the full HTML report.</p>
+        </div>
+        <div style="background:var(--mist);border:1px solid var(--border);border-radius:16px;padding:28px;">
+          <h3 style="font-size:16px;font-weight:700;margin-bottom:8px;">📁 Google Drive PDF Storage</h3>
+          <p style="font-size:13px;color:var(--silver);margin-bottom:16px;line-height:1.6;">When a webhook URL is configured, the PDF report HTML is also sent to your Apps Script, which can save it to a Google Drive folder.</p>
+          <p style="font-size:12px;color:var(--silver);line-height:1.65;padding:14px;background:rgba(0,87,184,0.08);border:1px solid rgba(0,87,184,0.2);border-radius:8px;">💡 Your Apps Script should handle both Google Sheets logging (via <code>SpreadsheetApp</code>) and Drive storage (via <code>DriveApp</code>). The payload's <code>report_html</code> field contains the full printable PDF report.</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="spanel-reset" class="settings-panel">
+      <div style="max-width:540px;">
+        <div style="background:var(--mist);border:1px solid var(--border);border-radius:16px;padding:32px;">
+          <div style="font-size:24px;margin-bottom:12px;">⚠️</div>
+          <h3 style="font-size:18px;font-weight:700;margin-bottom:10px;">Reset All Settings to Defaults</h3>
+          <p style="font-size:13px;color:var(--silver);margin-bottom:24px;line-height:1.6;">This will restore all questions, answer options, scores, and action effort/impact values to their original defaults.</p>
+          <button onclick="resetAllSettings()" style="background:#E05555;border:none;border-radius:10px;padding:12px 28px;color:#fff;font-family:Outfit,sans-serif;font-size:14px;font-weight:600;cursor:pointer;">Reset Everything to Defaults</button>
+        </div>
+        <div style="margin-top:20px;background:var(--mist);border:1px solid var(--border);border-radius:16px;padding:24px;">
+          <h3 style="font-size:15px;font-weight:700;margin-bottom:8px;">Export / Import Settings</h3>
+          <p style="font-size:13px;color:var(--silver);margin-bottom:16px;">Download your current settings as a JSON file for backup or sharing across deployments.</p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button onclick="exportSettings()" style="background:var(--blue);border:none;border-radius:8px;padding:10px 20px;color:#fff;font-family:Outfit,sans-serif;font-size:13px;font-weight:600;cursor:pointer;">⬇ Export Settings</button>
+            <label style="background:var(--mist);border:1px solid var(--border);border-radius:8px;padding:10px 20px;color:var(--silver);font-family:Outfit,sans-serif;font-size:13px;font-weight:600;cursor:pointer;">
+              ⬆ Import Settings
+              <input type="file" accept=".json" onchange="importSettings(event)" style="display:none">
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SCREEN: INTRO ══ -->
+  <div id="screen-intro" class="screen active">
+    <div class="eyebrow">Readiness Diagnostic</div>
+    <h1 class="hero-title">SAP Business Data Cloud<br><em>Readiness Assessment</em></h1>
+    <p class="hero-sub">A comprehensive diagnostic across 5 critical dimensions. Understand your organisation's readiness to adopt SAP BDC and receive a prioritised transformation roadmap.</p>
+
+    <div class="assessment-meta">
+      <div class="meta-item"><div class="meta-num">5</div><div class="meta-desc">Readiness Dimensions</div></div>
+      <div class="meta-item"><div class="meta-num">20</div><div class="meta-desc">Diagnostic Questions</div></div>
+      <div class="meta-item"><div class="meta-num">10–15</div><div class="meta-desc">Minutes to Complete</div></div>
+      <div class="meta-item"><div class="meta-num">25+</div><div class="meta-desc">Tailored Recommendations</div></div>
+    </div>
+
+    <div class="field-section">
+      <div class="field-section-title">About Your Organisation</div>
+      <div class="field-grid">
+        <div class="field"><label>Full Name *</label><input type="text" id="f-name" placeholder="Jane Smith" /></div>
+        <div class="field"><label>Title / Role *</label><input type="text" id="f-role" placeholder="CFO / VP Finance" /></div>
+        <div class="field field-full"><label>Organisation *</label><input type="text" id="f-org" placeholder="Acme Corporation" /></div>
+        <div class="field">
+          <label>Industry</label>
+          <select id="f-industry">
+            <option value="">Select…</option>
+            <option>Manufacturing</option><option>Retail & Consumer</option><option>Financial Services</option>
+            <option>Healthcare & Life Sciences</option><option>Energy & Utilities</option>
+            <option>Technology & SaaS</option><option>Chemicals</option><option>Automotive</option>
+            <option>Public Sector</option><option>Professional Services</option><option>Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Annual Revenue</label>
+          <select id="f-size">
+            <option value="">Select…</option>
+            <option>&lt;$100M</option><option>$100M–$500M</option><option>$500M–$2B</option>
+            <option>$2B–$10B</option><option>$10B+</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="field-section">
+      <div class="field-section-title">Assessment Context</div>
+      <div class="field-grid">
+        <div class="field"><label>HGS Advisor</label><input type="text" id="f-advisor" placeholder="Advisor name (optional)" /></div>
+        <div class="field"><label>Date</label><input type="date" id="f-date" /></div>
+      </div>
+    </div>
+
+    <button class="btn-primary" id="btn-start" onclick="startAssessment()" disabled style="width:100%;max-width:300px;">
+      Begin Assessment
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+    </button>
+  </div>
+
+  <!-- ══ SCREEN: QUIZ ══ -->
+  <div id="screen-quiz" class="screen">
+    <div class="progress-wrap">
+      <div class="progress-track"><div class="progress-fill" id="quiz-progress" style="width:0%"></div></div>
+      <div class="progress-meta">
+        <span id="progress-section-label">Section 1 of 5</span>
+        <span id="progress-q-label">0 of 20 answered</span>
+      </div>
+    </div>
+    <div class="section-tabs" id="section-tabs"></div>
+    <div id="quiz-body"></div>
+    <div class="section-nav">
+      <button class="btn-ghost" id="btn-prev" onclick="prevSection()">← Previous</button>
+      <span class="section-progress-text" id="section-progress-text"></span>
+      <button class="btn-primary" id="btn-next-section" onclick="nextSection()">
+        Next Section
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ══ SCREEN: RESULTS ══ -->
+  <div id="screen-results" class="screen"></div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+// DATA: 5 SECTIONS × 4 QUESTIONS
+// ══════════════════════════════════════════════
+const SECTIONS = [
+  {
+    id: 'data',
+    name: 'Data & Integration Landscape',
+    icon: '🗄️',
+    desc: 'Assesses master data quality, system landscape complexity, governance, and intercompany reconciliation maturity.',
+    questions: [
+      { text: 'How would you describe the current state of your master data (customers, vendors, materials, GL accounts)?',
+        options: ['Highly fragmented across multiple systems with no harmonisation roadmap','Partially harmonised — significant gaps and inconsistencies remain','Mostly consistent across core systems with minor discrepancies','Clean, centralised, and governed under a formal MDM programme'] },
+      { text: 'How many ERP or financial systems are you currently running enterprise-wide?',
+        options: ['5 or more separate ERP/financial systems','3–4 systems with limited integration','2 systems with some data exchange','Single ERP instance with consistent financial data'] },
+      { text: 'What is the maturity of your data governance practices today?',
+        options: ['No formal data governance — no defined ownership','Ad-hoc governance, no formal policies or stewards','Defined policies and ownership, inconsistently enforced','Formal governance with data stewards, policies, and quality KPIs'] },
+      { text: 'How are intercompany transactions currently handled across legal entities?',
+        options: ['Manual spreadsheet-based reconciliation with frequent errors','Partially automated with significant manual intervention','Mostly automated with some manual exception handling','Fully automated with real-time intercompany reconciliation'] },
+    ]
+  },
+  {
+    id: 'process',
+    name: 'Finance Process Standardisation',
+    icon: '⚙️',
+    desc: 'Evaluates the degree to which core finance processes are standardised, automated, and optimised across the organisation.',
+    questions: [
+      { text: 'How standardised are core finance processes (P2P, O2C, R2R) across business units?',
+        options: ['Each BU runs entirely different processes — no common standards','Some common processes exist but majority are decentralised','Mostly standardised with permitted BU-level exceptions','Fully standardised global finance processes with central governance'] },
+      { text: 'How long does your organisation take to complete the monthly period-end close?',
+        options: ['More than 15 business days with significant manual effort','10–15 business days, largely manual','6–10 business days with partial automation','5 or fewer business days with high automation (virtual close)'] },
+      { text: 'What is the current state of your group Chart of Accounts?',
+        options: ['Multiple COAs across entities with no harmonisation roadmap','Multiple COAs in active harmonisation — significant work remaining','Single group COA with necessary local extensions','Fully unified group COA deployed globally'] },
+      { text: 'How are budgeting, planning, and forecasting processes managed today?',
+        options: ['Spreadsheets only — no system integration','Standalone planning tool with limited ERP connection','Integrated planning with partial real-time ERP synchronisation','Fully integrated driver-based planning with real-time actuals'] },
+    ]
+  },
+  {
+    id: 'technology',
+    name: 'Technology & SAP Landscape',
+    icon: '💻',
+    desc: 'Reviews your current SAP footprint, technical expertise, cloud adoption posture, and IT/Finance partnership.',
+    questions: [
+      { text: 'What is your current SAP landscape status?',
+        options: ['No SAP systems currently deployed','SAP legacy (R/3 or ECC) with no active S/4HANA migration','S/4HANA on-premise or private cloud deployed','S/4HANA public cloud or BTP-enabled — ready for BDC connectivity'] },
+      { text: 'How would you rate your organisation\'s SAP technical expertise and capability?',
+        options: ['Limited — few SAP-skilled resources, heavily reliant on SI partners','Basic — some functional knowledge, limited technical depth','Proficient — experienced core team capable of managing the platform','Advanced — strong SAP Centre of Excellence with architecture capability'] },
+      { text: 'What is your organisation\'s current cloud adoption posture?',
+        options: ['On-premise only — no cloud strategy defined','Cloud strategy defined but minimal actual adoption','Hybrid — selectively migrating to cloud on a case-by-case basis','Cloud-first strategy with significant SaaS/PaaS adoption across functions'] },
+      { text: 'How is the IT and Finance partnership structured in your organisation?',
+        options: ['Siloed — IT and Finance rarely collaborate on strategic direction','Project-based collaboration only — no standing governance','Defined joint governance with regular Finance-IT alignment forums','Fully aligned — shared ownership of digital roadmap with Finance-led priorities'] },
+    ]
+  },
+  {
+    id: 'org',
+    name: 'Organisational Readiness',
+    icon: '🏢',
+    desc: 'Examines executive sponsorship, change management capability, team capacity, and cross-functional alignment.',
+    questions: [
+      { text: 'What level of executive sponsorship exists for a finance transformation of this scale?',
+        options: ['No executive sponsor identified — transformation not yet on leadership agenda','CFO aware of the initiative but not actively championing it','CFO actively sponsoring with visible engagement across the organisation','CEO and CFO co-sponsoring — transformation is a stated enterprise priority'] },
+      { text: 'How would you characterise your organisation\'s change management capability?',
+        options: ['No formal change management function or methodology','Ad-hoc change management practices applied on major projects','Structured OCM approach for large programmes with dedicated resource','Mature OCM practice — dedicated team, proven methodology, and leadership commitment'] },
+      { text: 'What is the current capacity of your Finance team to support transformation work alongside BAU?',
+        options: ['Fully consumed by BAU — no capacity available for transformation','Very limited — less than 10% of team could be allocated','Moderate — 10–25% of team could be freed up with effort','Good — a dedicated transformation team could be assembled'] },
+      { text: 'How aligned are Finance, IT, and business leadership on transformation goals and priorities?',
+        options: ['Significant disagreement or competing priorities across functions','Partial alignment — ongoing debates about scope and ownership','General agreement on direction with some unresolved exceptions','Strong consensus and a jointly owned transformation roadmap'] },
+    ]
+  },
+  {
+    id: 'strategy',
+    name: 'Strategic Drivers & Value Case',
+    icon: '🎯',
+    desc: 'Assesses clarity of the business case, strategic alignment, timeline urgency, and primary transformation drivers.',
+    questions: [
+      { text: 'How clearly defined and validated is the business case for SAP BDC adoption?',
+        options: ['No business case developed — exploration is at very early stage','High-level benefits identified verbally but not quantified','Quantified business case developed with some assumptions still open','Fully developed, board-approved business case with committed investment'] },
+      { text: 'What are the primary strategic drivers motivating your SAP BDC exploration?',
+        options: ['Compliance, audit risk, or regulatory pressure','Cost reduction, efficiency, and finance function rationalisation','M&A integration, growth, or multi-entity consolidation requirements','Digital finance transformation and competitive positioning'] },
+      { text: 'What is your target timeline for going live with SAP BDC?',
+        options: ['No timeline defined — still in exploratory phase','3 or more years out','18 months to 3 years','Less than 18 months — there is urgency to move quickly'] },
+      { text: 'How does SAP BDC fit within your broader enterprise digital and data strategy?',
+        options: ['Not yet connected to digital strategy — considered in isolation','Loosely aligned — some overlap with existing initiatives','Identified as a key strategic initiative in the digital roadmap','Central pillar of enterprise transformation — endorsed at board level'] },
+    ]
+  }
+];
+
+// ── Score → tier ──
+function scoreTier(pct) {
+  if (pct < 0.30) return { key:'foundation',  label:'Foundation Building', num:1 };
+  if (pct < 0.50) return { key:'early',        label:'Early Readiness',     num:2 };
+  if (pct < 0.67) return { key:'progressing',  label:'Progressing',         num:3 };
+  if (pct < 0.84) return { key:'nearready',    label:'Near Ready',          num:4 };
+  return               { key:'ready',        label:'Ready to Launch',    num:5 };
+}
+
+function tierTagline(key) {
+  return {
+    foundation:  'Significant groundwork required across data, process, and organisational foundations.',
+    early:       'Building blocks are forming — a structured readiness programme is needed before BDC adoption.',
+    progressing: 'Good momentum established. Address structural gaps while capturing early wins.',
+    nearready:   'Strong foundation in place. Begin BDC scoping, vendor engagement, and detailed planning.',
+    ready:       'Organisation is well-positioned for BDC adoption. Proceed to design and implementation planning.'
+  }[key] || '';
+}
+
+// ── State ──
+let answers = {};
+let currentSection = 0;
+
+['f-name','f-role','f-org'].forEach(id => {
+  document.getElementById(id).addEventListener('input', checkStart);
+});
+function checkStart() {
+  const ok = ['f-name','f-role','f-org'].every(i => document.getElementById(i).value.trim());
+  document.getElementById('btn-start').disabled = !ok;
+}
+document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
+
+// ── Navigation ──
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (id !== 'screen-settings') document.getElementById('settings-btn').style.display = 'flex';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function startAssessment() { currentSection = 0; renderQuiz(); showScreen('screen-quiz'); }
+
+function renderQuiz() { renderSectionTabs(); renderSection(); updateProgress(); }
+
+function renderSectionTabs() {
+  const wrap = document.getElementById('section-tabs');
+  wrap.innerHTML = SECTIONS.map((s, i) => {
+    const isDone = answers[i] && Object.keys(answers[i]).length === s.questions.length;
+    const cls = i === currentSection ? 'active' : (isDone ? 'done' : '');
+    return `<div class="section-tab ${cls}">${isDone ? '✓ ' : ''}${s.name.split(' ').slice(0,2).join(' ')}</div>`;
+  }).join('');
+}
+
+function renderSection() {
+  const sec = SECTIONS[currentSection];
+  const secAnswers = answers[currentSection] || {};
+  document.getElementById('quiz-body').innerHTML = `
+    <div class="section-header">
+      <div class="section-icon">${sec.icon}</div>
+      <div class="section-name">${sec.name}</div>
+      <div class="section-desc">${sec.desc}</div>
+    </div>
+    ${sec.questions.map((q, qi) => `
+      <div class="q-card ${secAnswers[qi] !== undefined ? 'answered' : ''}" id="qcard-${qi}">
+        <div class="q-num">Question ${qi + 1} of ${sec.questions.length}</div>
+        <div class="q-text">${q.text}</div>
+        <div class="q-options">
+          ${q.options.map((opt, oi) => `
+            <div class="q-option ${secAnswers[qi] === oi ? 'selected' : ''}" onclick="selectAnswer(${currentSection},${qi},${oi})">
+              <div class="q-radio"></div>
+              <span class="q-option-text">${opt}</span>
+              <span class="q-option-score">${oi + 1}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `).join('')}
+  `;
+  const isLast = currentSection === SECTIONS.length - 1;
+  const nextBtn = document.getElementById('btn-next-section');
+  nextBtn.innerHTML = isLast
+    ? 'View My Results <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
+    : 'Next Section <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>';
+  document.getElementById('btn-prev').style.visibility = currentSection === 0 ? 'hidden' : 'visible';
+  const answered = Object.keys(secAnswers).length;
+  document.getElementById('section-progress-text').textContent = `${answered} / ${sec.questions.length} answered`;
+  updateNextButton();
+}
+
+function selectAnswer(si, qi, oi) {
+  if (!answers[si]) answers[si] = {};
+  answers[si][qi] = oi;
+  const card = document.getElementById(`qcard-${qi}`);
+  if (card) {
+    card.classList.add('answered');
+    card.querySelectorAll('.q-option').forEach((el, idx) => el.classList.toggle('selected', idx === oi));
+  }
+  const answered = Object.keys(answers[si]).length;
+  document.getElementById('section-progress-text').textContent = `${answered} / ${SECTIONS[si].questions.length} answered`;
+  updateNextButton(); updateProgress(); renderSectionTabs();
+}
+
+function updateNextButton() {
+  const sec = SECTIONS[currentSection];
+  const answered = answers[currentSection] ? Object.keys(answers[currentSection]).length : 0;
+  document.getElementById('btn-next-section').disabled = answered < sec.questions.length;
+}
+
+function updateProgress() {
+  let total = 0, done = 0;
+  SECTIONS.forEach((s, i) => { total += s.questions.length; done += answers[i] ? Object.keys(answers[i]).length : 0; });
+  document.getElementById('quiz-progress').style.width = ((done / total) * 100) + '%';
+  document.getElementById('progress-section-label').textContent = `Section ${currentSection + 1} of ${SECTIONS.length}`;
+  document.getElementById('progress-q-label').textContent = `${done} of ${total} answered`;
+}
+
+function nextSection() {
+  const sec = SECTIONS[currentSection];
+  if ((answers[currentSection] ? Object.keys(answers[currentSection]).length : 0) < sec.questions.length) return;
+  if (currentSection < SECTIONS.length - 1) { currentSection++; renderQuiz(); window.scrollTo({top:0,behavior:'smooth'}); }
+  else buildResults();
+}
+function prevSection() {
+  if (currentSection > 0) { currentSection--; renderQuiz(); window.scrollTo({top:0,behavior:'smooth'}); }
+}
+
+// ══════════════════════════════════════════════
+// GOOGLE SHEETS / DRIVE WEBHOOK
+// ══════════════════════════════════════════════
+function getSheetsUrl() {
+  try { return localStorage.getItem('bdc_sheets_url') || ''; } catch(e) { return ''; }
+}
+function saveSheetsUrl(val) {
+  try { localStorage.setItem('bdc_sheets_url', val); } catch(e) {}
+}
+
+async function submitToSheets(payload) {
+  const url = getSheetsUrl();
+  if (!url || url.includes('YOUR_')) return;
+  try {
+    const reportHtml = buildReportHTML();
+    await fetch(url, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body: JSON.stringify({...payload, report_html: reportHtml}) });
+  } catch(e) { console.warn('Sheet submission failed silently:', e); }
+}
+
+// ══════════════════════════════════════════════
+// ACTION LIBRARY
+// ══════════════════════════════════════════════
+function dimensionActions(dimId, tier) {
+  const lib = {
+    data: {
+      foundation: [
+        { name:'Conduct enterprise data quality audit', horizon:'short', effortScore:3, impactScore:8, effort:'low', impact:'high', roi:85, desc:'Assess master data across all systems — identify duplicates, gaps, and reconciliation issues.', category:'data' },
+        { name:'Establish data governance charter & stewardship', horizon:'short', effortScore:3, impactScore:8, effort:'low', impact:'high', roi:83, desc:'Define data ownership, steward roles, and governance policies for core financial data domains.', category:'data' },
+        { name:'Automate intercompany reconciliation', horizon:'med', effortScore:6, impactScore:9, effort:'med', impact:'high', roi:88, desc:'Eliminate manual intercompany processes using automation tools ahead of BDC deployment.', category:'data' },
+      ],
+      early: [
+        { name:'Deploy master data management process', horizon:'short', effortScore:5, impactScore:9, effort:'med', impact:'high', roi:87, desc:'Implement a governed MDM process for customer, vendor, and GL master data across entities.', category:'data' },
+        { name:'Harmonise chart of accounts across entities', horizon:'med', effortScore:7, impactScore:9, effort:'high', impact:'high', roi:86, desc:'Standardise COA to create a common financial data structure required for BDC Group Reporting.', category:'data' },
+        { name:'Build data lineage and audit trail framework', horizon:'short', effortScore:3, impactScore:6, effort:'low', impact:'med', roi:70, desc:'Document calculation logic and data flows to enable auditability in BDC.', category:'data' },
+      ],
+      progressing: [
+        { name:'Integrate non-ERP data sources for unified finance data', horizon:'med', effortScore:6, impactScore:8, effort:'med', impact:'high', roi:82, desc:'Connect HR, CRM, and operational systems to the financial data layer ahead of BDC.', category:'data' },
+        { name:'Deploy automated data quality monitoring', horizon:'short', effortScore:4, impactScore:6, effort:'med', impact:'med', roi:73, desc:'Build data quality dashboards and alerts to proactively identify issues in the master data.', category:'data' },
+      ],
+      nearready: [
+        { name:'Architect SAP BTP data integration layer', horizon:'med', effortScore:8, impactScore:9, effort:'high', impact:'high', roi:88, desc:'Design the BTP-based integration architecture to connect all source systems to BDC.', category:'data' },
+        { name:'Pilot BDC Central Finance with limited scope', horizon:'med', effortScore:7, impactScore:9, effort:'high', impact:'high', roi:85, desc:'Run a controlled pilot of BDC Central Finance with one region or entity to validate data flows.', category:'data' },
+      ],
+      ready: [
+        { name:'Deploy BDC Group Reporting globally', horizon:'long', effortScore:9, impactScore:9, effort:'high', impact:'high', roi:90, desc:'Execute full BDC Group Reporting rollout leveraging clean, harmonised master data.', category:'data' },
+      ]
+    },
+    process: {
+      foundation: [
+        { name:'Document and baseline all core finance processes', horizon:'short', effortScore:2, impactScore:7, effort:'low', impact:'high', roi:80, desc:'Create process maps for R2R, P2P, and O2C to establish a transformation baseline.', category:'process' },
+        { name:'Define finance process standardisation roadmap', horizon:'short', effortScore:4, impactScore:8, effort:'med', impact:'high', roi:82, desc:'Identify which processes must be standardised before BDC and sequence the work.', category:'process' },
+        { name:'Implement accelerated close programme', horizon:'med', effortScore:6, impactScore:8, effort:'med', impact:'high', roi:84, desc:'Reengineer the period-end close to reduce cycle time — target sub-5 day close for BDC readiness.', category:'process' },
+      ],
+      early: [
+        { name:'Standardise R2R processes across all entities', horizon:'med', effortScore:7, impactScore:9, effort:'high', impact:'high', roi:87, desc:'Align Record-to-Report processes across business units as a prerequisite for BDC Group Reporting.', category:'process' },
+        { name:'Harmonise planning and budgeting process', horizon:'short', effortScore:5, impactScore:8, effort:'med', impact:'high', roi:83, desc:'Standardise the annual budget and forecast process to align with BDC planning capabilities.', category:'process' },
+        { name:'Deploy workflow and approval automation', horizon:'short', effortScore:4, impactScore:6, effort:'med', impact:'med', roi:72, desc:'Replace email-based finance approvals with automated workflow to prepare for BDC process integration.', category:'process' },
+      ],
+      progressing: [
+        { name:'Implement continuous accounting capabilities', horizon:'med', effortScore:6, impactScore:8, effort:'med', impact:'high', roi:84, desc:'Shift close activities to continuous accounting to enable real-time reporting in BDC.', category:'process' },
+        { name:'Align planning process to SAP Analytics Cloud', horizon:'med', effortScore:5, impactScore:8, effort:'med', impact:'high', roi:82, desc:'Migrate planning processes to SAC to leverage native BDC planning integration.', category:'process' },
+      ],
+      nearready: [
+        { name:'Configure BDC process orchestration framework', horizon:'med', effortScore:7, impactScore:9, effort:'high', impact:'high', roi:88, desc:'Design end-to-end process orchestration within BDC spanning close, consolidation, and reporting.', category:'process' },
+        { name:'Build unified close-to-report process on BDC', horizon:'long', effortScore:8, impactScore:9, effort:'high', impact:'high', roi:87, desc:'Deploy the integrated close-to-report process on BDC Group Reporting with automated consolidation.', category:'process' },
+      ],
+      ready: [
+        { name:'Optimise BDC continuous planning model', horizon:'long', effortScore:7, impactScore:9, effort:'high', impact:'high', roi:89, desc:'Evolve to a continuous, driver-based planning model leveraging BDC\'s integrated SAC platform.', category:'process' },
+      ]
+    },
+    technology: {
+      foundation: [
+        { name:'Conduct SAP landscape assessment and S/4HANA roadmap', horizon:'short', effortScore:3, impactScore:8, effort:'low', impact:'high', roi:84, desc:'Assess current SAP landscape, identify gaps, and define the S/4HANA migration path required for BDC.', category:'technology' },
+        { name:'Build SAP technical skills and capabilities', horizon:'short', effortScore:5, impactScore:8, effort:'med', impact:'high', roi:82, desc:'Invest in SAP training and recruitment to build the internal capability needed for BDC deployment.', category:'technology' },
+        { name:'Define cloud adoption strategy', horizon:'short', effortScore:3, impactScore:7, effort:'low', impact:'high', roi:80, desc:'Formalise the organisation\'s cloud strategy as a prerequisite for BDC and BTP adoption.', category:'technology' },
+      ],
+      early: [
+        { name:'Initiate S/4HANA migration programme', horizon:'med', effortScore:9, impactScore:9, effort:'high', impact:'high', roi:88, desc:'Begin the S/4HANA migration — BDC requires S/4HANA as the transactional backbone.', category:'technology' },
+        { name:'Establish SAP Centre of Excellence', horizon:'med', effortScore:5, impactScore:8, effort:'med', impact:'high', roi:83, desc:'Build a dedicated SAP COE to own platform governance, standards, and user enablement.', category:'technology' },
+        { name:'Deploy SAP BTP foundations', horizon:'med', effortScore:6, impactScore:8, effort:'med', impact:'high', roi:82, desc:'Implement BTP core services — Integration Suite, Data Sphere — as the BDC integration backbone.', category:'technology' },
+      ],
+      progressing: [
+        { name:'Complete S/4HANA go-live and stabilisation', horizon:'med', effortScore:9, impactScore:9, effort:'high', impact:'high', roi:87, desc:'Finalise S/4HANA deployment and achieve stable operations before BDC overlay.', category:'technology' },
+        { name:'Implement SAP Datasphere for unified data layer', horizon:'med', effortScore:7, impactScore:9, effort:'high', impact:'high', roi:86, desc:'Deploy SAP Datasphere to create the federated data layer that underpins BDC analytics.', category:'technology' },
+      ],
+      nearready: [
+        { name:'Connect S/4HANA to BDC via BTP Integration Suite', horizon:'med', effortScore:7, impactScore:9, effort:'high', impact:'high', roi:90, desc:'Establish the live integration between S/4HANA and BDC using SAP Integration Suite connectors.', category:'technology' },
+        { name:'Deploy SAP Analytics Cloud for planning and reporting', horizon:'med', effortScore:6, impactScore:9, effort:'med', impact:'high', roi:88, desc:'Implement SAC as the planning and analytics front-end, natively connected to BDC.', category:'technology' },
+      ],
+      ready: [
+        { name:'Activate BDC advanced analytics and AI features', horizon:'long', effortScore:7, impactScore:9, effort:'high', impact:'high', roi:89, desc:'Enable BDC\'s embedded AI capabilities — predictive planning, anomaly detection, and Joule co-pilot.', category:'technology' },
+      ]
+    },
+    org: {
+      foundation: [
+        { name:'Secure executive sponsorship at CFO/CEO level', horizon:'short', effortScore:2, impactScore:9, effort:'low', impact:'high', roi:90, desc:'Identify and engage an active executive sponsor — critical for overcoming organisational resistance.', category:'org' },
+        { name:'Appoint transformation programme lead', horizon:'short', effortScore:3, impactScore:8, effort:'low', impact:'high', roi:85, desc:'Designate a dedicated programme director to own the BDC readiness and transformation journey.', category:'org' },
+        { name:'Develop OCM strategy and stakeholder engagement plan', horizon:'short', effortScore:3, impactScore:8, effort:'low', impact:'high', roi:83, desc:'Build a change management and communications plan tailored to the BDC transformation scope.', category:'org' },
+      ],
+      early: [
+        { name:'Build cross-functional transformation governance', horizon:'short', effortScore:4, impactScore:8, effort:'med', impact:'high', roi:84, desc:'Establish a programme steering committee with Finance, IT, and business representation.', category:'org' },
+        { name:'Free Finance capacity via automation and outsourcing', horizon:'med', effortScore:6, impactScore:8, effort:'med', impact:'high', roi:83, desc:'Reduce BAU Finance workload by 20–30% to create capacity for transformation participation.', category:'org' },
+        { name:'Launch BDC awareness and education programme', horizon:'short', effortScore:3, impactScore:6, effort:'low', impact:'med', roi:72, desc:'Run internal workshops to build understanding of BDC capabilities and the case for change.', category:'org' },
+      ],
+      progressing: [
+        { name:'Invest in SAP BDC training and certification', horizon:'med', effortScore:5, impactScore:8, effort:'med', impact:'high', roi:82, desc:'Build internal BDC expertise through structured SAP training and certification programmes.', category:'org' },
+        { name:'Design future Finance operating model for BDC', horizon:'med', effortScore:5, impactScore:8, effort:'med', impact:'high', roi:83, desc:'Define how Finance roles, team structures, and processes will change post-BDC deployment.', category:'org' },
+      ],
+      nearready: [
+        { name:'Conduct BDC readiness validation workshop', horizon:'short', effortScore:3, impactScore:7, effort:'low', impact:'high', roi:80, desc:'Facilitate a structured readiness review with all stakeholders to confirm go/no-go for BDC scoping.', category:'org' },
+        { name:'Mobilise BDC project team and governance', horizon:'med', effortScore:5, impactScore:9, effort:'med', impact:'high', roi:86, desc:'Stand up the full BDC project team, including system integrator, with defined RACI and governance.', category:'org' },
+      ],
+      ready: [
+        { name:'Execute BDC programme delivery', horizon:'long', effortScore:10, impactScore:10, effort:'high', impact:'high', roi:92, desc:'Proceed to full BDC programme delivery with a defined scope, phased rollout plan, and business case.', category:'org' },
+      ]
+    },
+    strategy: {
+      foundation: [
+        { name:'Develop quantified BDC business case', horizon:'short', effortScore:3, impactScore:8, effort:'low', impact:'high', roi:85, desc:'Build a financial business case with quantified benefits — efficiency, risk reduction, working capital impact.', category:'strategy' },
+        { name:'Align BDC to enterprise digital strategy', horizon:'short', effortScore:2, impactScore:7, effort:'low', impact:'high', roi:82, desc:'Connect the BDC initiative to the broader enterprise digital and data strategy.', category:'strategy' },
+        { name:'Conduct SAP BDC discovery and market engagement', horizon:'short', effortScore:2, impactScore:6, effort:'low', impact:'med', roi:78, desc:'Engage SAP and HGS Advisory for a structured BDC discovery to understand scope, cost, and timeline.', category:'strategy' },
+      ],
+      early: [
+        { name:'Define phased BDC transformation roadmap', horizon:'short', effortScore:4, impactScore:9, effort:'med', impact:'high', roi:88, desc:'Develop a phased roadmap — from readiness to pilot to full deployment — with milestones and owners.', category:'strategy' },
+        { name:'Secure board-level investment approval', horizon:'med', effortScore:5, impactScore:9, effort:'med', impact:'high', roi:87, desc:'Present the BDC business case at board level to secure formal investment commitment.', category:'strategy' },
+        { name:'Align SAP BDC to M&A / growth strategy', horizon:'short', effortScore:3, impactScore:8, effort:'low', impact:'high', roi:83, desc:'Explicitly link BDC\'s consolidation capabilities to M&A integration and entity growth plans.', category:'strategy' },
+      ],
+      progressing: [
+        { name:'Initiate SAP BDC vendor evaluation and selection', horizon:'med', effortScore:5, impactScore:9, effort:'med', impact:'high', roi:87, desc:'Run formal SAP BDC evaluation, SI selection, and commercial negotiation process.', category:'strategy' },
+        { name:'Establish BDC value realisation tracking framework', horizon:'short', effortScore:3, impactScore:6, effort:'low', impact:'med', roi:74, desc:'Define metrics and KPIs to track and report on BDC benefit realisation post go-live.', category:'strategy' },
+      ],
+      nearready: [
+        { name:'Finalise BDC programme charter and scope', horizon:'short', effortScore:4, impactScore:9, effort:'med', impact:'high', roi:88, desc:'Complete the programme charter defining scope, phasing, budget, and success criteria.', category:'strategy' },
+        { name:'Commence BDC design and blueprint phase', horizon:'med', effortScore:7, impactScore:9, effort:'high', impact:'high', roi:90, desc:'Begin the formal BDC programme with design workshops, solution blueprint, and configuration.', category:'strategy' },
+      ],
+      ready: [
+        { name:'Launch BDC global deployment programme', horizon:'long', effortScore:10, impactScore:10, effort:'high', impact:'high', roi:93, desc:'Execute BDC global rollout programme with phased entity deployments and hypercare planning.', category:'strategy' },
+      ]
+    }
+  };
+  return (lib[dimId] && lib[dimId][tier]) ? lib[dimId][tier] : [];
+}
+
+function dimensionFinding(dimId, tier) {
+  const f = {
+    data: {
+      foundation:'Master data is highly fragmented and governance is minimal. This represents the highest-risk gap for BDC adoption — clean, governed data is a non-negotiable foundation. A data quality remediation and MDM programme must begin immediately.',
+      early:'Data governance is forming but significant harmonisation work remains. Prioritise COA harmonisation and automated intercompany reconciliation as these are critical BDC pre-requisites.',
+      progressing:'Good data foundations are in place with improving governance. Focus on connecting non-ERP data sources and completing MDM deployment to be fully BDC-ready.',
+      nearready:'Strong data quality and governance. Proceed to architect the BTP-based integration layer and initiate a BDC Central Finance pilot.',
+      ready:'Exceptional data readiness. Proceed directly to BDC Group Reporting deployment with confidence.'
+    },
+    process: {
+      foundation:'Finance processes are unstandardised and heavily manual. Significant process standardisation work is required before BDC can deliver value. Document, baseline, and begin harmonisation immediately.',
+      early:'Standardisation is underway but gaps remain. R2R process alignment and close acceleration are the critical path items before BDC deployment can succeed.',
+      progressing:'Solid process standardisation with clear remaining gaps. Continuous accounting adoption and SAC planning alignment will complete the BDC process readiness.',
+      nearready:'Strong process maturity. Configure BDC process orchestration and begin designing the unified close-to-report process.',
+      ready:'Best-in-class process maturity. BDC will unlock the next level of automation, real-time reporting, and continuous planning.'
+    },
+    technology: {
+      foundation:'SAP technical foundation is insufficient for BDC. S/4HANA migration is the critical path — this is a multi-year programme that must begin immediately. Simultaneously invest in SAP capability building.',
+      early:'S/4HANA migration is the overriding priority. BDC cannot be deployed without S/4HANA as the transactional backbone. Accelerate migration and establish a SAP Centre of Excellence.',
+      progressing:'S/4HANA is in progress. Stabilise the deployment and begin SAP Datasphere and BTP foundations in parallel to reduce the time-to-BDC.',
+      nearready:'Strong technical foundations. Connect S/4HANA to BDC via BTP Integration Suite and deploy SAC to unlock the full BDC platform.',
+      ready:'Excellent technical readiness. Activate BDC advanced capabilities including embedded AI, Joule co-pilot, and predictive planning.'
+    },
+    org: {
+      foundation:'Organisational readiness is the weakest dimension — without active executive sponsorship and programme leadership, no technology programme will succeed. Secure sponsorship and appoint a programme lead as immediate actions.',
+      early:'Governance structures are forming but capacity constraints and change management gaps remain. Free Finance capacity and build cross-functional governance before mobilising the BDC programme.',
+      progressing:'Good organisational momentum. Invest in BDC training and design the future Finance operating model to sustain the programme.',
+      nearready:'Strong organisational readiness. Conduct the BDC readiness validation workshop and mobilise the full project team to begin scoping.',
+      ready:'Excellent organisational readiness and sponsorship. Proceed directly to BDC programme delivery.'
+    },
+    strategy: {
+      foundation:'The strategic rationale for BDC is unclear and the business case is undefined. Develop a quantified business case, align BDC to enterprise strategy, and engage SAP and HGS for a structured discovery before proceeding.',
+      early:'Strategic direction is forming. Define a phased roadmap, secure board investment approval, and commence vendor evaluation to build programme momentum.',
+      progressing:'Clear strategic vision with a developing business case. Initiate formal vendor evaluation and build the value realisation tracking framework.',
+      nearready:'Strong strategic alignment and business case. Finalise the programme charter and commence the BDC design and blueprint phase.',
+      ready:'Excellent strategic clarity and board commitment. Launch the BDC global deployment programme with confidence.'
+    }
+  };
+  return (f[dimId] && f[dimId][tier]) || 'Finding being generated based on your responses.';
+}
+
+// ══════════════════════════════════════════════
+// RESULTS BUILDER
+// ══════════════════════════════════════════════
+function buildResults() {
+  const name     = document.getElementById('f-name').value.trim();
+  const role     = document.getElementById('f-role').value.trim();
+  const org      = document.getElementById('f-org').value.trim();
+  const advisor  = document.getElementById('f-advisor').value.trim();
+  const industry = document.getElementById('f-industry').value || 'Not specified';
+  const size     = document.getElementById('f-size').value || 'Not specified';
+  const date     = document.getElementById('f-date').value;
+
+  const dimScores = SECTIONS.map((sec, si) => {
+    const secAnswers = answers[si] || {};
+    const raw = Object.entries(secAnswers).reduce((s, [qi, oi]) => s + getOptionScore(si, +qi, oi), 0);
+    const maxRaw = sec.questions.length * 4;
+    const pct = raw / maxRaw;
+    return { ...sec, raw, maxRaw, pct, tier: scoreTier(pct) };
+  });
+
+  const totalRaw    = dimScores.reduce((s,d) => s+d.raw, 0);
+  const totalMax    = dimScores.reduce((s,d) => s+d.maxRaw, 0);
+  const overallPct  = totalRaw / totalMax;
+  const overallTier = scoreTier(overallPct);
+  const overallScore = Math.round(overallPct * 100);
+  const roadmap = buildRoadmapWithOverrides(dimScores);
+
+  submitToSheets({
+    timestamp: new Date().toISOString(), name, role, org, industry, size, advisor, date,
+    overall_score: overallScore, overall_tier: overallTier.label,
+    ...Object.fromEntries(dimScores.flatMap(d => [`dim_${d.id}_score`, d.raw], [`dim_${d.id}_tier`, d.tier.label]).reduce((a,b,i,arr) => i%2===0?[...a,[arr[i],arr[i+1]]]:a,[]))
+  });
+
+  document.getElementById('screen-results').innerHTML = `
+    ${renderResultsHero(name, role, org, date, overallScore, overallTier, industry, size, advisor)}
+    ${renderReadinessScale(overallTier)}
+    ${renderDimensionScores(dimScores)}
+    ${renderRadar(dimScores)}
+    ${renderBFBChart(roadmap)}
+    ${renderQuadrantCards(roadmap)}
+    ${renderRoadmap(roadmap)}
+    ${renderFindings(dimScores)}
+    ${renderResultsCTA()}
+  `;
+  showScreen('screen-results');
+  setTimeout(() => { drawRadar(dimScores); drawBFBChart(roadmap); animateBars(dimScores); }, 100);
+
+  // Pre-fill sheets url input if settings screen visited
+  const inp = document.getElementById('sheets-url-input');
+  if (inp) inp.value = getSheetsUrl();
+}
+
+function renderResultsHero(name, role, org, date, score, tier, industry, size, advisor) {
+  const formatted = date ? new Date(date).toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'}) : '';
+  const tierHex = { foundation:'#E05555', early:'#E8943A', progressing:'#E8C23A', nearready:'#3BAB7A', ready:'#0A7AE5' };
+  const tc = tierHex[tier.key];
+  return `
+  <div class="results-hero">
+    <div class="results-hero-left">
+      <div class="eyebrow">SAP BDC Readiness Assessment Results</div>
+      <div class="results-name">${name}</div>
+      <div class="results-org">${role} · ${org}</div>
+      <div class="tier-pill pill-${tier.key}"><span>●</span> ${tier.label}</div>
+      <div class="tier-tagline">${tierTagline(tier.key)}</div>
+      <div style="margin-top:20px;display:flex;gap:20px;flex-wrap:wrap;">
+        ${industry !== 'Not specified' ? `<div style="font-size:12px;color:var(--silver)"><span style="color:#fff;font-weight:500;">Industry:</span> ${industry}</div>` : ''}
+        ${size !== 'Not specified' ? `<div style="font-size:12px;color:var(--silver)"><span style="color:#fff;font-weight:500;">Size:</span> ${size}</div>` : ''}
+        ${formatted ? `<div style="font-size:12px;color:var(--silver)"><span style="color:#fff;font-weight:500;">Date:</span> ${formatted}</div>` : ''}
+        ${advisor ? `<div style="font-size:12px;color:var(--silver)"><span style="color:#fff;font-weight:500;">Advisor:</span> ${advisor}</div>` : ''}
+      </div>
+    </div>
+    <div class="overall-score-block">
+      <div class="overall-score-num" id="score-counter" style="color:${tc};">0</div>
+      <div style="font-size:18px;color:var(--silver)">/100</div>
+      <div style="font-size:11px;color:var(--silver);letter-spacing:.1em;text-transform:uppercase;margin-top:6px;">BDC Readiness Score</div>
+      <div style="margin-top:12px;font-size:11px;color:var(--silver);">Tier ${tier.num} of 5</div>
+    </div>
+  </div>`;
+}
+
+function renderReadinessScale(overallTier) {
+  const tiers = [
+    { key:'foundation',  label:'Foundation Building', color:'#E05555' },
+    { key:'early',       label:'Early Readiness',     color:'#E8943A' },
+    { key:'progressing', label:'Progressing',         color:'#E8C23A' },
+    { key:'nearready',   label:'Near Ready',          color:'#3BAB7A' },
+    { key:'ready',       label:'Ready to Launch',     color:'#0A7AE5' },
+  ];
+  return `
+  <div style="background:var(--mist);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:32px;">
+    <div class="section-title-bar"><h2>BDC Readiness Scale</h2></div>
+    <div class="readiness-scale">
+      ${tiers.map(t => `<div class="scale-segment ${t.key === overallTier.key ? 'active' : 'inactive'}" style="background:${t.color};color:${t.color};height:12px;border-radius:3px;"></div>`).join('')}
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-top:10px;flex-wrap:wrap;gap:8px;">
+      ${tiers.map(t => `
+        <div style="text-align:center;flex:1;min-width:80px;">
+          <div style="width:10px;height:10px;border-radius:50%;background:${t.color};margin:0 auto 4px;${t.key===overallTier.key?`box-shadow:0 0 10px ${t.color};`:''}" ></div>
+          <div style="font-size:10px;font-weight:${t.key===overallTier.key?'700':'400'};color:${t.key===overallTier.key?'#fff':'var(--silver)'};letter-spacing:.04em;">${t.label}${t.key===overallTier.key?' ←':''}</div>
+        </div>
+      `).join('')}
+    </div>
+  </div>`;
+}
+
+function renderDimensionScores(dimScores) {
+  const cards = dimScores.map(d => `
+    <div class="dim-card">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;border-radius:12px 12px 0 0;" class="top-${d.tier.key}"></div>
+      <div class="dim-icon">${d.icon}</div>
+      <div class="dim-name">${d.name}</div>
+      <div class="dim-score-row">
+        <div class="dim-score-big t-${d.tier.key}" id="dscore-${d.id}">${d.raw}</div>
+        <div class="dim-score-max">/ ${d.maxRaw}</div>
+      </div>
+      <div class="dim-bar"><div class="dim-bar-fill bar-${d.tier.key}" id="dbar-${d.id}" style="width:0%"></div></div>
+      <div class="dim-tier-label t-${d.tier.key}">${d.tier.label}</div>
+    </div>
+  `).join('');
+  return `<div style="margin-bottom:32px;"><div class="section-title-bar"><h2>Dimension Scores</h2></div><div class="dim-grid">${cards}</div></div>`;
+}
+
+function animateBars(dimScores) {
+  const target = Math.round(dimScores.reduce((s,d)=>s+d.raw,0) / dimScores.reduce((s,d)=>s+d.maxRaw,0) * 100);
+  let cur = 0;
+  const step = Math.max(1, Math.floor(target/40));
+  const iv = setInterval(() => {
+    cur = Math.min(cur + step, target);
+    const el = document.getElementById('score-counter');
+    if (el) el.textContent = cur;
+    if (cur >= target) clearInterval(iv);
+  }, 25);
+  dimScores.forEach(d => {
+    const bar = document.getElementById(`dbar-${d.id}`);
+    if (bar) setTimeout(() => { bar.style.width = (d.pct * 100) + '%'; }, 200);
+  });
+}
+
+function renderRadar(dimScores) {
+  return `<div class="radar-wrap"><div class="section-title-bar" style="width:100%"><h2>Capability Radar</h2></div><canvas id="radarCanvas" width="500" height="400"></canvas></div>`;
+}
+
+function drawRadar(dimScores) {
+  const canvas = document.getElementById('radarCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const cx = W/2, cy = H/2 + 10, R = Math.min(W,H)*0.34, n = dimScores.length;
+  const values = dimScores.map(d => d.pct);
+  const labels = dimScores.map(d => d.name.split(' ').slice(0,2).join(' '));
+  ctx.clearRect(0,0,W,H);
+  for (let r=1;r<=5;r++) {
+    ctx.beginPath();
+    for (let i=0;i<=n;i++) { const a=(i/n)*2*Math.PI-Math.PI/2, rr=(r/5)*R; ctx.lineTo(cx+rr*Math.cos(a), cy+rr*Math.sin(a)); }
+    ctx.closePath(); ctx.strokeStyle='rgba(255,255,255,0.07)'; ctx.lineWidth=1; ctx.stroke();
+    ctx.fillStyle='rgba(255,255,255,0.2)'; ctx.font='9px Outfit'; ctx.textAlign='center';
+    ctx.fillText(r, cx+4, cy-(r/5)*R+3);
+  }
+  for (let i=0;i<n;i++) { const a=(i/n)*2*Math.PI-Math.PI/2; ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+R*Math.cos(a),cy+R*Math.sin(a)); ctx.strokeStyle='rgba(255,255,255,0.08)'; ctx.lineWidth=1; ctx.stroke(); }
+  ctx.beginPath();
+  values.forEach((v,i) => { const a=(i/n)*2*Math.PI-Math.PI/2, r=v*R; i===0?ctx.moveTo(cx+r*Math.cos(a),cy+r*Math.sin(a)):ctx.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a)); });
+  ctx.closePath(); ctx.fillStyle='rgba(0,87,184,0.18)'; ctx.fill(); ctx.strokeStyle='rgba(10,122,229,0.8)'; ctx.lineWidth=2; ctx.stroke();
+  values.forEach((v,i) => { const a=(i/n)*2*Math.PI-Math.PI/2, r=v*R, x=cx+r*Math.cos(a), y=cy+r*Math.sin(a); ctx.beginPath(); ctx.arc(x,y,4,0,2*Math.PI); ctx.fillStyle='#0A7AE5'; ctx.fill(); ctx.strokeStyle='rgba(255,255,255,0.5)'; ctx.lineWidth=1.5; ctx.stroke(); });
+  for (let i=0;i<n;i++) { const a=(i/n)*2*Math.PI-Math.PI/2, lx=cx+(R+38)*Math.cos(a), ly=cy+(R+38)*Math.sin(a); ctx.fillStyle='rgba(255,255,255,0.7)'; ctx.font='11px Outfit'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(labels[i],lx,ly); }
+}
+
+// ── Bubble/BFB chart ──
+function buildRoadmapWithOverrides(dimScores) {
+  const overrides = getActionScoreOverrides();
+  const actions = [];
+  dimScores.forEach(d => {
+    const acts = dimensionActions(d.id, d.tier.key);
+    acts.forEach(a => {
+      const ov = overrides[a.name];
+      actions.push({ ...a, effortScore: ov?.effortScore ?? a.effortScore, impactScore: ov?.impactScore ?? a.impactScore, dimension: d.name, dimIcon: d.icon });
+    });
+  });
+  return actions;
+}
+
+function renderBFBChart(roadmap) {
+  return `
+  <div class="bfb-wrap">
+    <div class="section-title-bar"><h2>Value vs. Effort Matrix</h2></div>
+    <p style="font-size:13px;color:var(--silver);margin-bottom:4px;">Each bubble represents a recommended action. Position = effort required (x-axis) vs estimated impact (y-axis). Size reflects ROI confidence. Hover/tap for details.</p>
+    <div class="bfb-svg-wrap" id="bfb-svg-wrap">
+      <svg id="bfbSvg" viewBox="0 0 720 420" xmlns="http://www.w3.org/2000/svg"></svg>
+      <div class="bfb-tooltip" id="bfb-tooltip">
+        <div class="bfb-tooltip-name" id="tt-name"></div>
+        <div class="bfb-tooltip-dim" id="tt-dim"></div>
+        <div class="bfb-tooltip-row"><span>Impact</span><span class="bfb-tooltip-val" id="tt-impact"></span></div>
+        <div class="bfb-tooltip-row"><span>Effort</span><span class="bfb-tooltip-val" id="tt-effort"></span></div>
+        <div class="bfb-tooltip-row"><span>Horizon</span><span class="bfb-tooltip-val" id="tt-horizon"></span></div>
+        <div class="bfb-tooltip-row"><span>Est. ROI</span><span class="bfb-tooltip-val" id="tt-roi"></span></div>
+      </div>
+    </div>
+    <div class="bfb-legend">
+      <div class="bfb-legend-item"><div class="bfb-dot" style="background:#3BAB7A"></div> Short-term (0–6 mo)</div>
+      <div class="bfb-legend-item"><div class="bfb-dot" style="background:#E8B24A"></div> Mid-term (6–18 mo)</div>
+      <div class="bfb-legend-item"><div class="bfb-dot" style="background:#0A7AE5"></div> Long-term (18+ mo)</div>
+      <div class="bfb-legend-item" style="margin-left:auto;opacity:0.5;font-size:10px;">Hover bubble for details</div>
+    </div>
+  </div>`;
+}
+
+function drawBFBChart(roadmap) {
+  const svg = document.getElementById('bfbSvg');
+  if (!svg) return;
+  const VW=720, VH=420, pad={l:64,r:24,t:36,b:52};
+  const cw=VW-pad.l-pad.r, ch=VH-pad.t-pad.b;
+  const colorMap={short:'#3BAB7A',med:'#E8B24A',long:'#0A7AE5'};
+  function nudge(val,name,axis) { let h=0; const s=name+axis; for(let i=0;i<s.length;i++) h=(Math.imul(31,h)+s.charCodeAt(i))|0; return ((h>>>0)/0xffffffff-0.5)*0.4; }
+  const placed=[];
+  const nodes=roadmap.map((a,idx) => {
+    const es=Math.max(1,Math.min(10,(a.effortScore||5)+nudge(a.effortScore||5,a.name,'x')));
+    const is=Math.max(1,Math.min(10,(a.impactScore||5)+nudge(a.impactScore||5,a.name,'y')));
+    const ex=0.05+((es-1)/9)*0.90, ey=1-(0.05+((is-1)/9)*0.90);
+    let bx=pad.l+ex*cw, by=pad.t+ey*ch;
+    const r=7+(a.roi-60)/10;
+    for(let iter=0;iter<14;iter++) { placed.forEach(p => { const dx=bx-p.x,dy=by-p.y,dist=Math.sqrt(dx*dx+dy*dy),minD=r+p.r+3; if(dist<minD&&dist>0){const push=(minD-dist)/2; bx+=(dx/dist)*push; by+=(dy/dist)*push; bx=Math.max(pad.l+r+2,Math.min(pad.l+cw-r-2,bx)); by=Math.max(pad.t+r+2,Math.min(pad.t+ch-r-2,by));} }); }
+    placed.push({x:bx,y:by,r});
+    return {...a,bx,by,r,idx,col:colorMap[a.horizon]||'#6B8099'};
+  });
+  function el(tag,attrs,children='') { return `<${tag} ${Object.entries(attrs).map(([k,v])=>`${k}="${v}"`).join(' ')}>${children}</${tag}>`; }
+  let out=`<defs>${nodes.map(n=>`<radialGradient id="ng${n.idx}" cx="40%" cy="35%" r="60%"><stop offset="0%" stop-color="${n.col}" stop-opacity="0.9"/><stop offset="100%" stop-color="${n.col}" stop-opacity="0.5"/></radialGradient>`).join('')}<pattern id="grid" width="60" height="42" patternUnits="userSpaceOnUse"><path d="M 60 0 L 0 0 0 42" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="1"/></pattern></defs>`;
+  out+=`<rect x="${pad.l}" y="${pad.t}" width="${cw}" height="${ch}" fill="url(#grid)"/>`;
+  [{x:pad.l,y:pad.t,w:cw/2,h:ch/2,c:'rgba(59,171,122,0.05)',label:'⚡ Quick Wins',lx:pad.l+cw*0.25,ly:pad.t+20},{x:pad.l+cw/2,y:pad.t,w:cw/2,h:ch/2,c:'rgba(10,122,229,0.05)',label:'🚀 Strategic Bets',lx:pad.l+cw*0.75,ly:pad.t+20},{x:pad.l,y:pad.t+ch/2,w:cw/2,h:ch/2,c:'rgba(201,146,43,0.04)',label:'Fill-ins',lx:pad.l+cw*0.25,ly:pad.t+ch-10},{x:pad.l+cw/2,y:pad.t+ch/2,w:cw/2,h:ch/2,c:'rgba(100,100,100,0.03)',label:'Deprioritise',lx:pad.l+cw*0.75,ly:pad.t+ch-10}].forEach(q => { out+=`<rect x="${q.x}" y="${q.y}" width="${q.w}" height="${q.h}" fill="${q.c}"/><text x="${q.lx}" y="${q.ly}" text-anchor="middle" font-size="11" font-family="Outfit,sans-serif" fill="rgba(255,255,255,0.18)" font-weight="600">${q.label}</text>`; });
+  out+=`<line x1="${pad.l+cw/2}" y1="${pad.t}" x2="${pad.l+cw/2}" y2="${pad.t+ch}" stroke="rgba(255,255,255,0.08)" stroke-width="1" stroke-dasharray="5,4"/>`;
+  out+=`<line x1="${pad.l}" y1="${pad.t+ch/2}" x2="${pad.l+cw}" y2="${pad.t+ch/2}" stroke="rgba(255,255,255,0.08)" stroke-width="1" stroke-dasharray="5,4"/>`;
+  out+=`<line x1="${pad.l}" y1="${pad.t}" x2="${pad.l}" y2="${pad.t+ch}" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>`;
+  out+=`<line x1="${pad.l}" y1="${pad.t+ch}" x2="${pad.l+cw}" y2="${pad.t+ch}" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>`;
+  [1,3,5,7,10].forEach(v => { const x=pad.l+((v-1)/9)*cw; out+=`<text x="${x}" y="${pad.t+ch+18}" text-anchor="middle" font-size="9" font-family="Outfit,sans-serif" fill="rgba(255,255,255,0.3)">${v}</text><line x1="${x}" y1="${pad.t+ch}" x2="${x}" y2="${pad.t+ch+5}" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>`; });
+  out+=`<text x="${pad.l+cw/2}" y="${pad.t+ch+36}" text-anchor="middle" font-size="10" font-family="Outfit,sans-serif" fill="rgba(255,255,255,0.25)">← Effort Required (1=Low · 10=High) →</text>`;
+  [1,3,5,7,10].forEach(v => { const y=pad.t+ch-((v-1)/9)*ch; out+=`<text x="${pad.l-6}" y="${y+3}" text-anchor="end" font-size="9" font-family="Outfit,sans-serif" fill="rgba(255,255,255,0.3)">${v}</text><line x1="${pad.l-3}" y1="${y}" x2="${pad.l}" y2="${y}" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>`; });
+  out+=`<text x="13" y="${pad.t+ch/2}" text-anchor="middle" font-size="10" font-family="Outfit,sans-serif" fill="rgba(255,255,255,0.25)" transform="rotate(-90,13,${pad.t+ch/2})">← Impact (1=Low · 10=High) →</text>`;
+  nodes.forEach(n => { out+=`<circle cx="${n.bx}" cy="${n.by}" r="${n.r+3}" fill="${n.col}" fill-opacity="0.08"/>`; });
+  nodes.forEach(n => { out+=`<circle cx="${n.bx}" cy="${n.by}" r="${n.r}" fill="url(#ng${n.idx})" stroke="${n.col}" stroke-width="1.5" stroke-opacity="0.8" class="bfb-bubble" data-name="${(n.name||'').replace(/"/g,'&quot;')}" data-dim="${(n.dimension||'').replace(/"/g,'&quot;')}" data-impact="${n.impact}" data-effort="${n.effort}" data-impact-score="${n.impactScore||''}" data-effort-score="${n.effortScore||''}" data-horizon="${n.horizon}" data-roi="${n.roi}" style="cursor:pointer;transition:r 0.15s,filter 0.15s;" onmouseenter="bfbHover(event,this)" onmouseleave="bfbLeave()" ontouchstart="bfbHover(event,this)"/>`; if(n.r>=13){const words=n.name.split(' ');out+=`<text x="${n.bx}" y="${n.by+3}" text-anchor="middle" font-size="7.5" font-family="Outfit,sans-serif" fill="rgba(255,255,255,0.9)" font-weight="600" pointer-events="none" style="text-shadow:0 1px 2px rgba(0,0,0,0.8)">${words.slice(0,2).join(' ')}</text>`;} });
+  svg.innerHTML = out;
+  window._bfbNodes = nodes;
+}
+
+function bfbHover(e, el) {
+  e.preventDefault();
+  const tt=document.getElementById('bfb-tooltip'), wrap=document.getElementById('bfb-svg-wrap');
+  if(!tt||!wrap) return;
+  document.getElementById('tt-name').textContent=el.dataset.name;
+  document.getElementById('tt-dim').textContent=el.dataset.dim;
+  document.getElementById('tt-impact').textContent=`${el.dataset.impactScore}/10`;
+  document.getElementById('tt-effort').textContent=`${el.dataset.effortScore}/10`;
+  document.getElementById('tt-horizon').textContent={short:'0–6 months',med:'6–18 months',long:'18+ months'}[el.dataset.horizon]||el.dataset.horizon;
+  document.getElementById('tt-roi').textContent=el.dataset.roi+'%';
+  const wRect=wrap.getBoundingClientRect(), eRect=el.getBoundingClientRect();
+  let left=eRect.left-wRect.left+eRect.width/2+10, top=eRect.top-wRect.top-20;
+  tt.classList.add('visible');
+  if(left+250>wRect.width) left=eRect.left-wRect.left-250;
+  tt.style.left=Math.max(0,left)+'px'; tt.style.top=Math.max(0,top)+'px';
+  el.setAttribute('r',parseFloat(el.getAttribute('r'))*1.25); el.style.filter='brightness(1.3)';
+}
+function bfbLeave() { const tt=document.getElementById('bfb-tooltip'); if(tt) tt.classList.remove('visible'); document.querySelectorAll('.bfb-bubble').forEach(b=>{ b.style.filter=''; }); }
+
+function renderQuadrantCards(roadmap) {
+  const colorMap={short:'#3BAB7A',med:'#E8B24A',long:'#0A7AE5'};
+  const horizonLabel={short:'0–6 mo',med:'6–18 mo',long:'18+ mo'};
+  const effortLabel={low:'Low effort',med:'Med effort',high:'High effort'};
+  function getQ(a) { const lo=a.effort==='low', hi=a.roi>=80; if(lo&&hi) return 'qw'; if(!lo&&hi) return 'sb'; if(lo&&!hi) return 'fi'; return 'dp'; }
+  const quadrants={qw:{label:'⚡ Quick Wins',sub:'High return · Low effort',border:'#3BAB7A',bg:'rgba(59,171,122,0.06)',items:[]},sb:{label:'🚀 Strategic Bets',sub:'High return · High effort',border:'#0A7AE5',bg:'rgba(10,122,229,0.06)',items:[]},fi:{label:'📌 Fill-ins',sub:'Lower return · Low effort',border:'#E8B24A',bg:'rgba(201,146,43,0.06)',items:[]},dp:{label:'⏸ Deprioritise',sub:'Lower return · Higher effort',border:'#6B8099',bg:'rgba(107,128,153,0.04)',items:[]}};
+  roadmap.forEach(a => quadrants[getQ(a)].items.push(a));
+  return `<div style="margin-bottom:8px;"><div class="section-title-bar"><h2 style="font-size:17px;">Actions by Quadrant</h2></div><p style="font-size:13px;color:var(--silver);margin-bottom:20px;">All recommended actions sorted by their priority quadrant. Colour indicates time horizon.</p></div>
+  <div class="bfb-quadrants">${Object.values(quadrants).map(q=>`<div class="bfb-qcard" style="border-color:${q.border}33;background:${q.bg};"><div class="bfb-qcard-header"><div><div class="bfb-qcard-title" style="color:${q.border};">${q.label}</div><div class="bfb-qcard-sub">${q.sub} · ${q.items.length} action${q.items.length!==1?'s':''}</div></div></div><div class="bfb-qcard-items">${q.items.length===0?`<div style="font-size:12px;color:var(--silver);padding:8px 0;">No actions in this quadrant.</div>`:q.items.sort((a,b)=>b.roi-a.roi).map(a=>{const hcol=colorMap[a.horizon];return`<div class="bfb-action-pill" style="background:${hcol}11;border-color:${hcol}22;"><div class="bfb-action-pill-dot" style="background:${hcol};margin-top:5px;"></div><div class="bfb-action-pill-body"><div class="bfb-action-pill-name">${a.name}</div><div class="bfb-action-pill-meta">${a.dimIcon} ${a.dimension.split(' ').slice(0,2).join(' ')} · ${effortLabel[a.effort]} · ${horizonLabel[a.horizon]}</div></div><div class="bfb-action-pill-roi" style="color:${hcol};">${a.roi}%</div></div>`;}).join('')}</div></div>`).join('')}</div>`;
+}
+
+function renderRoadmap(roadmap) {
+  const short=roadmap.filter(a=>a.horizon==='short'), med=roadmap.filter(a=>a.horizon==='med'), long=roadmap.filter(a=>a.horizon==='long');
+  function rows(actions) { return actions.map(a=>`<tr><td><div style="font-weight:500;margin-bottom:3px;">${a.name}</div><div style="font-size:11px;color:var(--silver);">${a.desc}</div></td><td style="white-space:nowrap;">${a.dimIcon} <span style="font-size:11px;color:var(--silver);">${a.dimension.split(' ').slice(0,2).join(' ')}</span></td><td><span class="impact-badge impact-${a.impact}">${a.impact.toUpperCase()}</span></td><td><span class="cost-badge cost-${a.effort}">${a.effort.toUpperCase()}</span></td><td style="font-weight:600;color:var(--blue-light);">${a.roi}%</td></tr>`).join(''); }
+  const hdr=`<table class="roadmap-table"><thead><tr><th>Action</th><th>Dimension</th><th>Impact</th><th>Effort</th><th>Est. ROI</th></tr></thead><tbody>`;
+  return `<div class="roadmap-section"><div class="section-title-bar"><h2>Transformation Roadmap</h2></div><p style="font-size:13px;color:var(--silver);margin-bottom:20px;">Prioritised actions across your BDC transformation journey, organised by time horizon.</p><div class="roadmap-tabs"><div class="roadmap-tab active" onclick="switchRoadmap('short',this)">⚡ Short-term <span style="opacity:.6">(0–6 months · ${short.length} actions)</span></div><div class="roadmap-tab" onclick="switchRoadmap('med',this)">🔧 Mid-term <span style="opacity:.6">(6–18 months · ${med.length} actions)</span></div><div class="roadmap-tab" onclick="switchRoadmap('long',this)">🚀 Long-term <span style="opacity:.6">(18+ months · ${long.length} actions)</span></div></div><div id="roadmap-short" class="roadmap-pane active">${hdr}${rows(short)}</tbody></table></div><div id="roadmap-med" class="roadmap-pane">${hdr}${rows(med)}</tbody></table></div><div id="roadmap-long" class="roadmap-pane">${hdr}${rows(long)}</tbody></table></div></div>`;
+}
+
+function switchRoadmap(h,el) { document.querySelectorAll('.roadmap-pane').forEach(p=>p.classList.remove('active')); document.querySelectorAll('.roadmap-tab').forEach(t=>t.classList.remove('active')); document.getElementById('roadmap-'+h).classList.add('active'); el.classList.add('active'); }
+
+function renderFindings(dimScores) {
+  return `<div><div class="section-title-bar"><h2>Dimension Findings</h2></div><div class="findings-grid">${dimScores.map(d=>{const recs=dimensionActions(d.id,d.tier.key).slice(0,3); return`<div class="finding-card"><div class="finding-header"><div class="finding-icon">${d.icon}</div><div class="finding-name">${d.name}</div><div class="finding-score-pill pill-${d.tier.key}">${d.tier.label}</div></div><div class="finding-text">${dimensionFinding(d.id,d.tier.key)}</div><div class="finding-recs">${recs.map(r=>`<div class="finding-rec">${r.name}</div>`).join('')}</div></div>`;}).join('')}</div></div>`;
+}
+
+function renderResultsCTA() {
+  return `<div class="results-cta">
+    <h3>Ready to Begin Your SAP BDC Journey?</h3>
+    <p>HGS Advisory specialises in SAP Business Data Cloud transformations — from readiness assessment to global deployment. Let our team build your bespoke BDC roadmap.</p>
+    <div class="cta-btns">
+      <a href="https://hgs.com/technology-partners/sap/sap-data-platform/" target="_blank" class="btn-primary">
+        Talk to an HGS Advisor
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+      </a>
+      <button class="btn-gold" onclick="downloadPDF()">
+        Export PDF Report
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      </button>
+      <button class="btn-ghost" onclick="retake()">Retake Assessment</button>
+    </div>
+  </div>`;
+}
+
+function retake() {
+  answers = {}; currentSection = 0;
+  ['f-name','f-role','f-org','f-advisor'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('f-industry').value=''; document.getElementById('f-size').value='';
+  document.getElementById('btn-start').disabled = true;
+  showScreen('screen-intro');
+}
+
+// ══════════════════════════════════════════════
+// PDF EXPORT
+// ══════════════════════════════════════════════
+function buildReportHTML() {
+  const name=document.getElementById('f-name').value.trim(), role=document.getElementById('f-role').value.trim(), org=document.getElementById('f-org').value.trim();
+  const date=document.getElementById('f-date').value, advisor=document.getElementById('f-advisor').value.trim();
+  const industry=document.getElementById('f-industry').value||'—', size=document.getElementById('f-size').value||'—';
+  const formatted=date?new Date(date).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}):'—';
+  const dimScores=SECTIONS.map((sec,si)=>{ const sa=answers[si]||{}; const raw=Object.entries(sa).reduce((s,[qi,oi])=>s+getOptionScore(si,+qi,oi),0); const maxRaw=sec.questions.length*4; const pct=raw/maxRaw; return{...sec,raw,maxRaw,pct,tier:scoreTier(pct)}; });
+  const totalRaw=dimScores.reduce((s,d)=>s+d.raw,0), totalMax=dimScores.reduce((s,d)=>s+d.maxRaw,0);
+  const overallPct=totalRaw/totalMax, overallTier=scoreTier(overallPct), overallScore=Math.round(overallPct*100);
+  const roadmapAll=buildRoadmapWithOverrides(dimScores);
+  const tierHex={foundation:'#E05555',early:'#E8943A',progressing:'#E8C23A',nearready:'#3BAB7A',ready:'#0A7AE5'};
+  const tc=tierHex[overallTier.key];
+  function scoreBar(pct,color){return`<div style="height:6px;background:#1e3448;border-radius:4px;overflow:hidden;margin-top:4px;"><div style="height:100%;width:${Math.round(pct*100)}%;background:${color};border-radius:4px;"></div></div>`;}
+  function impBadge(v){const m={high:['#3BAB7A','#0d2a1e'],med:['#E8943A','#2a1a0a'],low:['#6B8099','#1a2535']};const[fg,bg]=m[v]||m.low;return`<span style="background:${bg};color:${fg};border:1px solid ${fg};padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;">${v.toUpperCase()}</span>`;}
+  function effBadge(v){const m={low:['#3BAB7A','#0d2a1e'],med:['#E8943A','#2a1a0a'],high:['#E05555','#2a0d0d']};const[fg,bg]=m[v]||m.low;return`<span style="background:${bg};color:${fg};border:1px solid ${fg};padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;">${v.toUpperCase()}</span>`;}
+  function secHdr(t,s=''){return`<div style="margin:36px 0 18px;border-bottom:1px solid #1e3448;padding-bottom:10px;"><h2 style="font-size:18px;font-weight:700;color:#fff;margin:0 0 4px;">${t}</h2>${s?`<p style="font-size:12px;color:#6B8099;margin:0;">${s}</p>`:''}</div>`;}
+  function rmTable(actions,ac){if(!actions.length) return'<p style="color:#6B8099;font-size:12px;">No actions in this horizon.</p>';return`<table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="border-bottom:1px solid #1e3448;"><th style="text-align:left;padding:8px 10px;color:#6B8099;font-weight:600;font-size:10px;letter-spacing:.1em;text-transform:uppercase;">Action</th><th style="text-align:left;padding:8px 10px;color:#6B8099;font-weight:600;font-size:10px;letter-spacing:.1em;text-transform:uppercase;">Dimension</th><th style="padding:8px 10px;color:#6B8099;font-weight:600;font-size:10px;letter-spacing:.1em;text-transform:uppercase;">Impact</th><th style="padding:8px 10px;color:#6B8099;font-weight:600;font-size:10px;letter-spacing:.1em;text-transform:uppercase;">Effort</th><th style="text-align:right;padding:8px 10px;color:#6B8099;font-weight:600;font-size:10px;letter-spacing:.1em;text-transform:uppercase;">Est. ROI</th></tr></thead><tbody>${actions.map((a,i)=>`<tr style="background:${i%2===0?'#0f1f30':'#0b1929'};border-bottom:1px solid #131e2b;"><td style="padding:10px;color:#fff;vertical-align:top;"><div style="font-weight:600;margin-bottom:3px;">${a.name}</div><div style="color:#6B8099;font-size:11px;line-height:1.4;">${a.desc}</div></td><td style="padding:10px;color:#8a9bb0;font-size:11px;vertical-align:top;white-space:nowrap;">${a.dimIcon} ${a.dimension.split(' ').slice(0,2).join(' ')}</td><td style="padding:10px;text-align:center;vertical-align:top;">${impBadge(a.impact)}</td><td style="padding:10px;text-align:center;vertical-align:top;">${effBadge(a.effort)}</td><td style="padding:10px;text-align:right;font-weight:700;color:${ac};vertical-align:top;">${a.roi}%</td></tr>`).join('')}</tbody></table>`;}
+  const sh=roadmapAll.filter(a=>a.horizon==='short'), me=roadmapAll.filter(a=>a.horizon==='med'), lo=roadmapAll.filter(a=>a.horizon==='long');
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>HGS SAP BDC Readiness Report — ${org}</title><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"><style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:'Outfit',Arial,sans-serif;background:#07111C;color:#fff;font-size:13px;line-height:1.5;}.page{max-width:800px;margin:0 auto;padding:48px 40px;}@media print{@page{size:A4;margin:15mm 15mm 20mm 15mm;}body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}.no-break{page-break-inside:avoid;}.page-break{page-break-before:always;}.page{padding:0;max-width:100%;}}</style></head><body><div class="page">
+  <div class="no-break" style="padding:40px 0 32px;border-bottom:1px solid #1e3448;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+      <div><div style="font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#6B8099;margin-bottom:12px;">HGS Advisory · SAP Business Data Cloud</div><h1 style="font-size:34px;font-weight:700;color:#fff;line-height:1.1;margin-bottom:6px;">BDC Readiness<br><span style="color:#0A7AE5;">Assessment Report</span></h1><p style="font-size:13px;color:#6B8099;margin-top:12px;">Prepared for: <strong style="color:#fff;">${name}</strong> &nbsp;·&nbsp; ${role} &nbsp;·&nbsp; ${org}</p></div>
+      <div style="text-align:center;background:#0f1f30;border:1px solid #1e3448;border-radius:16px;padding:24px 28px;min-width:140px;flex-shrink:0;"><div style="font-size:52px;font-weight:700;color:${tc};line-height:1;">${overallScore}</div><div style="font-size:12px;color:#6B8099;">/100</div><div style="margin-top:8px;padding:4px 12px;background:${tc}22;border:1px solid ${tc}55;border-radius:20px;display:inline-block;font-size:10px;font-weight:700;color:${tc};letter-spacing:.08em;text-transform:uppercase;">${overallTier.label}</div><div style="font-size:10px;color:#6B8099;margin-top:6px;">Tier ${overallTier.num} of 5</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-top:28px;">${[['Industry',industry],['Revenue',size],['Assessment Date',formatted],['HGS Advisor',advisor||'—']].map(([k,v])=>`<div style="background:#0f1f30;border:1px solid #1e3448;border-radius:8px;padding:12px 14px;"><div style="font-size:10px;color:#6B8099;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;">${k}</div><div style="font-size:12px;font-weight:600;color:#fff;">${v}</div></div>`).join('')}</div>
+    <div style="margin-top:20px;padding:16px 20px;background:#0f1f30;border:1px solid ${tc}33;border-radius:10px;"><span style="color:${tc};font-weight:600;">Overall Readiness: </span><span style="color:#ccc;">${tierTagline(overallTier.key)}</span></div>
+  </div>
+  ${secHdr('Readiness Dimension Scores','Maturity assessed across 5 critical BDC readiness dimensions')}
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">${dimScores.map(d=>{const dc=tierHex[d.tier.key];return`<div class="no-break" style="background:#0f1f30;border:1px solid #1e3448;border-radius:10px;padding:16px 18px;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span style="font-size:18px;">${d.icon}</span><span style="font-size:12px;font-weight:600;color:#8a9bb0;">${d.name}</span><span style="margin-left:auto;padding:2px 10px;background:${dc}22;border:1px solid ${dc}55;border-radius:20px;font-size:10px;font-weight:700;color:${dc};">${d.tier.label}</span></div><div style="display:flex;align-items:baseline;gap:4px;margin-bottom:6px;"><span style="font-size:26px;font-weight:700;color:${dc};">${d.raw}</span><span style="font-size:13px;color:#6B8099;">/ ${d.maxRaw}</span></div>${scoreBar(d.pct,dc)}</div>`;}).join('')}</div>
+  <div class="page-break"></div>
+  ${secHdr('Dimension Findings & Recommendations')}${dimScores.map(d=>{const dc=tierHex[d.tier.key];const recs=dimensionActions(d.id,d.tier.key).slice(0,3);return`<div class="no-break" style="background:#0f1f30;border:1px solid #1e3448;border-left:3px solid ${dc};border-radius:10px;padding:18px 20px;margin-bottom:14px;"><div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><span style="font-size:20px;">${d.icon}</span><strong style="font-size:14px;">${d.name}</strong><span style="padding:2px 10px;background:${dc}22;border:1px solid ${dc}55;border-radius:20px;font-size:10px;font-weight:700;color:${dc};">${d.tier.label} — ${d.raw}/${d.maxRaw}</span></div><p style="color:#8a9bb0;font-size:12px;line-height:1.55;margin-bottom:12px;">${dimensionFinding(d.id,d.tier.key)}</p><div style="border-top:1px solid #1e3448;padding-top:10px;"><div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#6B8099;margin-bottom:8px;">Top Recommendations</div>${recs.map(r=>`<div style="display:flex;gap:8px;margin-bottom:6px;font-size:12px;color:#ccc;"><span style="color:#0A7AE5;font-weight:700;flex-shrink:0;">›</span>${r.name}</div>`).join('')}</div></div>`;}).join('')}
+  <div class="page-break"></div>
+  ${secHdr('Transformation Roadmap','Prioritised actions organised by time horizon')}
+  <div style="padding:14px 18px;background:#0d2a1e;border:1px solid #3BAB7A44;border-radius:10px;margin-bottom:14px;"><div style="font-size:11px;font-weight:700;color:#3BAB7A;letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px;">⚡ Short-term Actions · 0–6 Months · ${sh.length} Actions</div><div style="font-size:11px;color:#6B8099;">Foundation building, quick wins, and immediate readiness steps.</div></div>${rmTable(sh,'#3BAB7A')}
+  <div style="padding:14px 18px;background:#2a1a0a;border:1px solid #E8943A44;border-radius:10px;margin:24px 0 14px;"><div style="font-size:11px;font-weight:700;color:#E8943A;letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px;">🔧 Mid-term Actions · 6–18 Months · ${me.length} Actions</div><div style="font-size:11px;color:#6B8099;">Platform deployment, integration work, and capability development.</div></div>${rmTable(me,'#E8943A')}
+  <div style="padding:14px 18px;background:#0e1a2e;border:1px solid #0A7AE544;border-radius:10px;margin:24px 0 14px;"><div style="font-size:11px;font-weight:700;color:#0A7AE5;letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px;">🚀 Long-term Actions · 18+ Months · ${lo.length} Actions</div><div style="font-size:11px;color:#6B8099;">Full BDC deployment, advanced analytics, and operating model evolution.</div></div>${rmTable(lo,'#0A7AE5')}
+  <div style="margin-top:48px;padding-top:20px;border-top:1px solid #1e3448;display:flex;justify-content:space-between;align-items:center;"><div style="font-size:11px;color:#3a5a7a;">HGS Advisory · SAP BDC Readiness Assessment · Confidential</div><div style="font-size:11px;color:#3a5a7a;">${formatted}</div></div>
+</div></body></html>`;
+}
+
+function downloadPDF() {
+  const html = buildReportHTML();
+  const printHtml = html.replace('</body>', '<script>window.onload=function(){window.print();}<\/script></body>');
+  const w = window.open('', '_blank');
+  if (!w) { alert('Please allow pop-ups for this page to download the PDF report.'); return; }
+  w.document.write(printHtml); w.document.close();
+}
+
+// ══════════════════════════════════════════════
+// SETTINGS ENGINE
+// ══════════════════════════════════════════════
+const SK_Q = 'bdc_settings_questions';
+const SK_A = 'bdc_settings_actions';
+
+function loadSettingsQuestions() { try { const s=localStorage.getItem(SK_Q); if(s) return JSON.parse(s); } catch(e){} return null; }
+function loadSettingsActions() { try { const s=localStorage.getItem(SK_A); if(s) return JSON.parse(s); } catch(e){} return null; }
+
+function buildDefaultActionScores() {
+  const scores={};
+  const allDims=['data','process','technology','org','strategy'];
+  const allTiers=['foundation','early','progressing','nearready','ready'];
+  allDims.forEach(dim => allTiers.forEach(tier => dimensionActions(dim,tier).forEach(a => { if(!scores[a.name]) scores[a.name]={effortScore:a.effortScore,impactScore:a.impactScore}; })));
+  return scores;
+}
+
+function buildDefaultQuestions() {
+  return SECTIONS.map(sec => ({ id:sec.id, name:sec.name, icon:sec.icon, questions:sec.questions.map(q => ({ text:q.text, options:q.options.map((opt,i)=>({text:opt,score:i+1})) })) }));
+}
+
+function applyStoredQuestions() {
+  const stored=loadSettingsQuestions(); if(!stored) return;
+  stored.forEach((secData,si) => { if(!SECTIONS[si]) return; secData.questions.forEach((qData,qi) => { if(!SECTIONS[si].questions[qi]) return; SECTIONS[si].questions[qi].text=qData.text; SECTIONS[si].questions[qi].options=qData.options.map(o=>o.text); SECTIONS[si].questions[qi]._scores=qData.options.map(o=>o.score); }); });
+}
+
+function getOptionScore(si,qi,oi) { const q=SECTIONS[si]?.questions[qi]; if(q&&q._scores) return q._scores[oi]??(oi+1); return oi+1; }
+function getActionScoreOverrides() { return loadSettingsActions()||buildDefaultActionScores(); }
+
+function openSettings() {
+  renderSettingsQuestions(); renderSettingsActions();
+  const inp=document.getElementById('sheets-url-input'); if(inp) inp.value=getSheetsUrl();
+  showScreen('screen-settings');
+}
+
+function switchSettingsTab(tab) {
+  document.querySelectorAll('.settings-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.settings-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('stab-'+tab).classList.add('active');
+  document.getElementById('spanel-'+tab).classList.add('active');
+}
+
+function renderSettingsQuestions() {
+  const stored=loadSettingsQuestions()||buildDefaultQuestions();
+  document.getElementById('settings-questions-body').innerHTML=stored.map((sec,si)=>`
+    <div class="settings-section-header" onclick="toggleSettingsSection('sq-${si}')">
+      <span class="settings-section-icon">${sec.icon}</span>
+      <span class="settings-section-title">${sec.name}</span>
+      <span class="settings-section-chevron" id="sqchev-${si}">▼</span>
+    </div>
+    <div class="settings-section-body" id="sq-${si}">
+      ${sec.questions.map((q,qi)=>`
+        <div class="settings-question-block">
+          <div class="settings-q-label">Question ${qi+1}</div>
+          <textarea class="settings-input" rows="2" onchange="saveQuestionText(${si},${qi},this.value)" style="margin-bottom:12px;resize:vertical;">${escHtml(q.text)}</textarea>
+          <div style="display:grid;grid-template-columns:1fr 72px;gap:6px 8px;margin-bottom:4px;">
+            <div style="font-size:10px;color:var(--silver);padding-left:2px;">Answer Option</div>
+            <div style="font-size:10px;color:var(--silver);text-align:center;">Score</div>
+          </div>
+          ${q.options.map((opt,oi)=>`
+            <div class="settings-option-row">
+              <input type="text" class="settings-input" value="${escHtml(opt.text)}" onchange="saveOptionText(${si},${qi},${oi},this.value)" />
+              <div>
+                <input type="number" class="settings-score-input" min="1" max="10" value="${opt.score}" onchange="saveOptionScore(${si},${qi},${oi},+this.value)" />
+                <div class="settings-option-label">1–10</div>
+              </div>
+            </div>`).join('')}
+        </div>`).join('')}
+    </div>`).join('');
+}
+
+function renderSettingsActions() {
+  const overrides=getActionScoreOverrides();
+  const allDims=['data','process','technology','org','strategy'];
+  const allTiers=['foundation','early','progressing','nearready','ready'];
+  const dimIcons={data:'🗄️',process:'⚙️',technology:'💻',org:'🏢',strategy:'🎯'};
+  const byDim={};
+  allDims.forEach(dim=>{ byDim[dim]={name:'',icon:dimIcons[dim],actions:[]}; allTiers.forEach(tier=>{ dimensionActions(dim,tier).forEach(a=>{ if(!byDim[dim].actions.find(x=>x.name===a.name)){byDim[dim].actions.push({...a});byDim[dim].name=a.dimension;} }); }); });
+  document.getElementById('settings-actions-body').innerHTML=allDims.map(dim=>{
+    const d=byDim[dim]; if(!d.actions.length) return '';
+    return `<div class="settings-section-header" onclick="toggleSettingsSection('sa-${dim}')"><span class="settings-section-icon">${d.icon}</span><span class="settings-section-title">${d.name} <span style="color:var(--silver);font-weight:400;font-size:12px;">(${d.actions.length} actions)</span></span><span class="settings-section-chevron" id="sachev-${dim}">▼</span></div>
+    <div class="settings-section-body" id="sa-${dim}">
+      <div style="display:grid;grid-template-columns:1fr 90px 90px;gap:0 12px;padding:8px 14px;border-bottom:1px solid var(--border);"><div style="font-size:10px;color:var(--silver);font-weight:600;letter-spacing:.08em;">ACTION</div><div style="font-size:10px;color:var(--silver);font-weight:600;letter-spacing:.08em;text-align:center;">EFFORT (1-10)</div><div style="font-size:10px;color:var(--silver);font-weight:600;letter-spacing:.08em;text-align:center;">IMPACT (1-10)</div></div>
+      ${d.actions.map((a,ai)=>{ const ov=overrides[a.name]||{}; const es=ov.effortScore??a.effortScore??5, is=ov.impactScore??a.impactScore??5; const rowId=dim+'_'+ai; return`<div class="action-score-row" id="arow-${rowId}" data-name="${escHtml(a.name)}"><div><div class="action-score-name">${escHtml(a.name)}</div><div class="action-score-dim">${a.horizon==='short'?'Short':a.horizon==='med'?'Mid':'Long'} term</div></div><div class="score-input-wrap"><input type="number" min="1" max="10" value="${es}" onchange="saveActionScoreByRow('${rowId}','effortScore',+this.value)" /><div class="score-input-label">Effort</div></div><div class="score-input-wrap"><input type="number" min="1" max="10" value="${is}" onchange="saveActionScoreByRow('${rowId}','impactScore',+this.value)" /><div class="score-input-label">Impact</div></div></div>`; }).join('')}
+    </div>`;
+  }).join('');
+}
+
+function toggleSettingsSection(id) { const body=document.getElementById(id); const chev=document.getElementById(id.replace('sq-','sqchev-').replace('sa-','sachev-')); const isOpen=body.classList.contains('open'); body.classList.toggle('open',!isOpen); if(chev) chev.classList.toggle('open',!isOpen); }
+function escHtml(str) { return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function getOrInitQ() { return loadSettingsQuestions()||buildDefaultQuestions(); }
+function saveQuestionText(si,qi,val) { const d=getOrInitQ(); d[si].questions[qi].text=val; localStorage.setItem(SK_Q,JSON.stringify(d)); applyStoredQuestions(); showSaveBadge(); }
+function saveOptionText(si,qi,oi,val) { const d=getOrInitQ(); d[si].questions[qi].options[oi].text=val; localStorage.setItem(SK_Q,JSON.stringify(d)); applyStoredQuestions(); showSaveBadge(); }
+function saveOptionScore(si,qi,oi,val) { const d=getOrInitQ(); d[si].questions[qi].options[oi].score=Math.max(1,Math.min(10,val)); localStorage.setItem(SK_Q,JSON.stringify(d)); applyStoredQuestions(); showSaveBadge(); }
+function saveActionScoreByRow(rowId,field,val) { const row=document.getElementById('arow-'+rowId); if(!row) return; const name=row.getAttribute('data-name'); const ov=getActionScoreOverrides(); if(!ov[name]) ov[name]={}; ov[name][field]=Math.max(1,Math.min(10,val)); localStorage.setItem(SK_A,JSON.stringify(ov)); showSaveBadge(); }
+
+let _badgeTimer=null;
+function showSaveBadge() {
+  let b=document.getElementById('settings-save-toast');
+  if(!b){b=document.createElement('div');b.id='settings-save-toast';b.textContent='✓ Saved';b.style.cssText='position:fixed;bottom:24px;right:24px;background:#0057B8;color:#fff;padding:8px 18px;border-radius:20px;font-size:13px;font-weight:600;font-family:Outfit,sans-serif;z-index:999;transition:opacity 0.3s;opacity:0;pointer-events:none;';document.body.appendChild(b);}
+  b.style.opacity='1'; clearTimeout(_badgeTimer); _badgeTimer=setTimeout(()=>b.style.opacity='0',1800);
+}
+
+function resetAllSettings() {
+  if(!confirm('Reset all settings to defaults? This cannot be undone.')) return;
+  localStorage.removeItem(SK_Q); localStorage.removeItem(SK_A);
+  applyStoredQuestions(); renderSettingsQuestions(); renderSettingsActions(); showSaveBadge(); alert('Settings reset to defaults.');
+}
+
+function exportSettings() {
+  const data={questions:loadSettingsQuestions()||buildDefaultQuestions(),actions:loadSettingsActions()||buildDefaultActionScores(),exported:new Date().toISOString()};
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'})); a.download='hgs_bdc_assessment_settings.json'; a.click();
+}
+function importSettings(event) {
+  const file=event.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{try{const d=JSON.parse(e.target.result);if(d.questions) localStorage.setItem(SK_Q,JSON.stringify(d.questions));if(d.actions) localStorage.setItem(SK_A,JSON.stringify(d.actions));applyStoredQuestions();renderSettingsQuestions();renderSettingsActions();showSaveBadge();alert('Settings imported successfully.');}catch(err){alert('Import failed — invalid JSON file.');}};
+  reader.readAsText(file);
+}
+
+// ── Secret keystroke 'hgsadmin' ──
+(function(){
+  const SECRET='hgsadmin'; let buffer='', timer=null;
+  document.addEventListener('keydown',function(e){
+    const tag=document.activeElement?.tagName?.toLowerCase();
+    if(tag==='input'||tag==='textarea'||tag==='select') return;
+    buffer+=e.key.toLowerCase(); if(buffer.length>SECRET.length) buffer=buffer.slice(-SECRET.length);
+    clearTimeout(timer); timer=setTimeout(()=>buffer='',2000);
+    if(buffer===SECRET){ buffer=''; const btn=document.getElementById('settings-btn'); if(btn){btn.style.display='flex';} }
+  });
+})();
+
+// Apply any stored question overrides on load
+applyStoredQuestions();
+</script>
+</body>
+</html>
