@@ -815,42 +815,28 @@ async function testWebhook() {
     dim_technology_score: 15, dim_technology_tier: 'Near Ready',
     dim_org_score: 14, dim_org_tier: 'Near Ready',
     dim_strategy_score: 16, dim_strategy_tier: 'Ready to Launch',
-    report_html: '<html><body><p>Test report</p></body></html>'
+    report_html: '<html><body><p>Test report — webhook connectivity check</p></body></html>'
   };
 
   let log = 'URL: ' + url + '\n';
-  log += 'Method: GET with payload as query parameter (bypasses all CORS restrictions)…\n\n';
+  log += 'Method: POST + no-cors + text/plain (same as FP&A survey)…\n\n';
 
   try {
-    const encoded = encodeURIComponent(JSON.stringify(testPayload));
-    const getUrl = url + '?payload=' + encoded;
+    await fetch(url, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+      body: JSON.stringify(testPayload)
+    });
 
-    const resp = await fetch(getUrl, { method: 'GET' });
-    const text = await resp.text();
-
-    log += 'HTTP Status: ' + resp.status + '\n';
-    log += 'Response: ' + (text.length > 300 ? text.slice(0,300) + '…' : text) + '\n';
-
-    try {
-      const json = JSON.parse(text);
-      if (json.status === 'ok') {
-        log += '\n✓ Apps Script confirmed: status = ok';
-        log += '\nCheck your Google Sheet — a test row should be there now.';
-        statusEl.style.color = '#3BAB7A';
-        statusEl.textContent = '✓ Webhook working — check your Sheet now';
-      } else {
-        log += '\n⚠ Apps Script returned: ' + JSON.stringify(json);
-        statusEl.style.color = '#E8943A';
-        statusEl.textContent = '⚠ Script error — see log';
-      }
-    } catch(pe) {
-      log += '\n(Response is not JSON)';
-      statusEl.style.color = '#E8943A';
-      statusEl.textContent = '⚠ Unexpected response — see log';
-    }
+    log += '✓ Request dispatched.\n';
+    log += '\nCheck your Google Sheet in ~10 seconds.\n';
+    log += 'Also check Apps Script → Executions for the server log.';
+    statusEl.style.color = '#E8C23A';
+    statusEl.textContent = '⚡ Sent — check your Sheet now';
 
   } catch(err) {
-    log += 'Request failed: ' + err.message;
+    log += '✗ Request failed: ' + err.message;
     statusEl.style.color = '#E05555';
     statusEl.textContent = '✗ Request failed';
   }
@@ -861,23 +847,18 @@ async function testWebhook() {
   btn.style.opacity = '1';
 }
 
-function getSheetsUrl() {
-  try { return localStorage.getItem('bdc_sheets_url') || ''; } catch(e) { return ''; }
-}
-function saveSheetsUrl(val) {
-  try { localStorage.setItem('bdc_sheets_url', val); } catch(e) {}
-}
-
 async function submitToSheets(payload) {
   const url = getSheetsUrl();
   if (!url || url.includes('YOUR_')) return;
   try {
     const reportHtml = buildReportHTML();
     const fullPayload = {...payload, report_html: reportHtml};
-    // Use GET with payload as query param — only method that reliably reaches
-    // Apps Script doGet from a cross-origin page without CORS preflight issues.
-    const encoded = encodeURIComponent(JSON.stringify(fullPayload));
-    await fetch(url + '?payload=' + encoded, { method: 'GET' });
+    await fetch(url, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+      body: JSON.stringify(fullPayload)
+    });
   } catch(e) { console.warn('Sheet submission error:', e); }
 }
 
